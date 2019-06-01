@@ -43,7 +43,7 @@ class custom_Dataset(Dataset):
             if not os.path.join(cfg['cache_path']):
                 os.mkdir(cfg['cache_path'])
             data= self.load_data(cfg)
-            index = [i for i in range(len(self.data['x']))]
+            index = [i for i in range(len(data['x']))]
             random.shuffle(index)
             #shuffle
             data['x'] = data['x'][index]
