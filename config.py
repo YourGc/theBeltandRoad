@@ -1,8 +1,8 @@
 # coding:utf-8
 ##  在fold2 256 base的基础上finetune
 cfg = {}
-cfg['input_size'] = (3,224,224)
-cfg['data_path'] = r'F:\Chrome-Download\2019bigdata\2019bigdata\train_image\train'
+cfg['input_size'] = (224,224)
+cfg['data_path'] = r'/content/drive/My Drive/train'
 cfg['cache_path'] = 'cache'
-cfg['mean'] = ()
-cfg['std'] = ()
+cfg['mean'] = (0.2,0.2,0.2)
+cfg['std'] = (1,1,1)

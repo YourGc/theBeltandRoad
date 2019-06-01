@@ -64,8 +64,8 @@ class custom_Dataset(Dataset):
                 img = cv2.imread(os.path.join(root_path,img_name))
                 img = cv2.resize(img,cfg['input_size'],interpolation=cv2.INTER_LINEAR)
                 img = self.Histogram_Equalization(img)
-                img = self.preprocessing(img,cfg)
-                img_array = np.array(img)
+                img_array = np.array(img,dtype=np.float32)
+                img_array = self.preprocessing(img_array,cfg)
                 data['x'].append(img_array)
                 data['y'].append(label)
 
