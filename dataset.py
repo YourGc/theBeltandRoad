@@ -84,6 +84,7 @@ class custom_Dataset(Dataset):
         img = self.Histogram_Equalization(img)
         img_array = np.array(img, dtype=np.float32)
         img_array = self.preprocessing(img_array)
+        img_array = np.transpose(img_array,(2,0,1))
         return img_array
 
     def __getitem__(self,index):
