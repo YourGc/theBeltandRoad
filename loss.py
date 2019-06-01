@@ -15,6 +15,8 @@ class CELoss(nn.Module):
         '''
         #这样写可扩展性好
         print(pred.shape,target.shape)
-        _, preds = torch.max(pred, 1)
+        print(pred)
+        _, preds = torch.argmax(pred, 1)
+        print(preds)
         loss = nn.CrossEntropyLoss()(preds, target)
         return loss
