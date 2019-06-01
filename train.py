@@ -41,6 +41,7 @@ def train(model,optimizer,scheduler,cfg):
         total_loss = 0
         train_iterator = tqdm.tqdm(trainloader, ncols=50)
         for idx, (imgs, labels) in enumerate(train_iterator):
+            print(labels)
             optimizer.zero_grad()
             labels = labels.to(device)
             imgs = imgs.to(device)
