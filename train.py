@@ -39,11 +39,10 @@ def train(model,optimizer,scheduler,cfg):
     step = 0
     best_score = 0
 
+    tic_batch = time.time()
     for epoch in range(cfg['epochs']):
         total_loss = 0
-        train_iterator = tqdm.tqdm(trainloader, ncols=50)
-        for idx, (imgs, labels) in enumerate(train_iterator):
-            print(labels)
+        for idx, (imgs, labels) in enumerate(trainloader):
             optimizer.zero_grad()
             if device == 'cuda':
                 imgs = Variable(imgs.cuda())
@@ -56,13 +55,14 @@ def train(model,optimizer,scheduler,cfg):
             optimizer.step()
             total_loss += loss.item()
 
-            status = '[{0}] lr = {1:.7f} batch_loss = {2:.3f} epoch_loss = {3:.3f} '.format(
-                epoch + 1, scheduler.get_lr()[0], loss.data, total_loss / (idx + 1))
-
-            train_iterator.set_description(status)
+            cur_correctrs = torch.sum(preds == labels.data)
+            batch_acc = cur_correctrs / (cfg['batch_size'])
 
             if step % cfg['show_freq'] == 0:
-                print(status)
+                print('[Epoch {}/{}]-[batch:{}/{}] lr:{:.4f}  Loss: {:.6f}  Acc: {:.4f}  Time: {:.4f}batch/sec'.format(
+                      epoch+1, cfg['epochs'], idx, round(len(trainloader)/cfg['batch_size'])-1, scheduler.get_lr()[0], loss.item(), batch_acc, \
+                    cfg['print_freq']/(time.time()-tic_batch)))
+                tic_batch = time.time()
             step += 1
         scheduler.step(epoch)
         model_path = os.path.join(out_dir, 'model.pth')
