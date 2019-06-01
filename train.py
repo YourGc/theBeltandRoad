@@ -21,6 +21,7 @@ def create_dir(dir):
 
 def train(model,optimizer,scheduler,cfg):
     trainsets = custom_Dataset(cfg)
+
     trainloader = DataLoader(trainsets, num_workers=4,batch_size=cfg['batch_size'],shuffle=True)
 
     out_dir = '{}_{}_{}'.format(cfg['model_name'], time.strftime("%Y%m%d"),time.strftime("%H%M%S"))
@@ -92,6 +93,6 @@ if __name__ == '__main__':
     scheduler = lr_scheduler.CosineAnnealingLR(optimizer, T_max=(cfg['epochs'] // 9) + 1)
 
     #summary(model,(3,224,224))
-    dataset = custom_Dataset(cfg)
+
     train(model,optimizer,scheduler,cfg)
 

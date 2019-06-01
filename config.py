@@ -14,7 +14,7 @@ cfg['mean'] = (0.2,0.2,0.2)
 cfg['std'] = (1,1,1)
 
 #训练相关
-cfg['batch_size'] = 2
+cfg['batch_size'] = 8
 cfg['base_lr'] = 0.01
 cfg['epochs'] = 100
 cfg['show_freq'] = 10
