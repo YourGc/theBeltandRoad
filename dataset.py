@@ -12,6 +12,9 @@ class custom_Dataset(Dataset):
     def __init__(self,cfg):
         super(custom_Dataset).__init__()
         self.cache_path = cfg['cache_path']
+        self.input_size = cfg['input_size']
+        self.mean = cfg['mean']
+        self.std = cfg['std']
         self.data= self.load_cache(self.cache_path,cfg)
 
     def Histogram_Equalization(self,img):
@@ -61,26 +64,31 @@ class custom_Dataset(Dataset):
             root_path = os.path.join(cfg['data_path'],label)
             img_names = os.listdir(root_path)
             for img_name in img_names:
-                img = cv2.imread(os.path.join(root_path,img_name))
-                img = cv2.resize(img,cfg['input_size'],interpolation=cv2.INTER_LINEAR)
-                img = self.Histogram_Equalization(img)
-                img_array = np.array(img,dtype=np.float32)
-                img_array = self.preprocessing(img_array,cfg)
-                data['x'].append(img_array)
+                data['x'].append(os.path.join(root_path,img_name))
                 data['y'].append(label)
 
         data['x'] = np.array(data['x'])
         data['y'] = np.array(data['y'])
         return data
 
-    def preprocessing(self,img,cfg):
+    def preprocessing(self,img):
         img /=255
-        img -= cfg['mean']
-        img /= cfg['std']
+        img -= self.mean
+        img /= self.std
         return img
 
+    def get_img(self,index):
+        img = cv2.imread(self.data['x'][index])
+        img = cv2.resize(img, self.input_size, interpolation=cv2.INTER_LINEAR)
+        img = self.Histogram_Equalization(img)
+        img_array = np.array(img, dtype=np.float32)
+        img_array = self.preprocessing(img_array)
+        return img_array
+
     def __getitem__(self,index):
-        return self.data['x'][index],self.data['y'][index]
+        img = self.get_img(index)
+        lable = self.data['y'][index]
+        return img,lable
 
     def __len__(self):
         assert len(self.data['x']) == len(self.data['y']) , "customDataSet Error"
