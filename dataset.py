@@ -15,7 +15,7 @@ class custom_Dataset(Dataset):
         self.input_size = cfg['input_size']
         self.mean = cfg['mean']
         self.std = cfg['std']
-        self.data= self.load_cache(self.cache_path,cfg)
+        self.data= self.load_cache(cfg)
 
     def Histogram_Equalization(self,img):
         '''
