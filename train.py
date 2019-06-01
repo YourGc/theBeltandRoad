@@ -21,11 +21,12 @@ def train(model,optimizer,scheduler,cfg):
     trainsets = custom_Dataset(cfg)
     trainloader = DataLoader(trainsets, num_workers=4,batch_size=cfg['batch_size'],shuffle=True)
 
-    out_dir = '{}_{}_{}'.format(cfg['model_name'], time.strftime("%d/%m/%Y"),time.strftime("%H:%M:%S"))
+    out_dir = '{}_{}_{}'.format(cfg['model_name'], time.strftime("%Y%m%d"),time.strftime("%H%M%S"))
 
     criterion = CELoss()
-    create_dir(out_dir)
     save_dir = os.path.join(cfg['checkpoint_dir'],out_dir)
+    create_dir(save_dir)
+
 
     # if cfg['finetune_model'] is not None:
     #     model.load_state_dict(torch.load(cfg['finetune_model']), strict=False)
@@ -78,6 +79,8 @@ def train(model,optimizer,scheduler,cfg):
 
 
 if __name__ == '__main__':
+    create_dir(cfg['checkpoint_dir'])
+
     model = se_resnet50(9,None)
     optimizer = optim.SGD(model.parameters(), lr=cfg['base_lr'], momentum=0.9, weight_decay=1e-3)
     scheduler = lr_scheduler.CosineAnnealingLR(optimizer, T_max=(cfg['epochs'] // 9) + 1)
