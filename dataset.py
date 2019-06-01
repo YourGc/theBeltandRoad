@@ -40,7 +40,7 @@ class custom_Dataset(Dataset):
             return data
         else:
             print('cannot find cache file,making...')
-            if not os.path.join(cfg['cache_path']):
+            if not os.path.exists(cfg['cache_path']):
                 os.mkdir(cfg['cache_path'])
             data= self.load_data(cfg)
             index = [i for i in range(len(data['x']))]
