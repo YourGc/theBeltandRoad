@@ -6,6 +6,7 @@ import os
 import cv2
 import numpy as np
 import random
+import torch
 random.seed(666666)
 
 class custom_Dataset(Dataset):
@@ -88,8 +89,8 @@ class custom_Dataset(Dataset):
         return img_array
 
     def __getitem__(self,index):
-        img = self.get_img(index)
-        lable = self.data['y'][index]
+        img = torch.from_numpy(self.get_img(index))
+        lable = torch.from_numpy(self.data['y'][index])
         return img,lable
 
     def __len__(self):
