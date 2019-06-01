@@ -11,9 +11,6 @@ random.seed(666666)
 class custom_Dataset(Dataset):
     def __init__(self,cfg):
         super(custom_Dataset).__init__()
-        if not os.path.join(cfg['cache_path']):
-            os.mkdir(cfg['cache_path'])
-
         self.cache_path = cfg['cache_path']
         self.data= self.load_cache(self.cache_path,cfg)
 
@@ -40,6 +37,8 @@ class custom_Dataset(Dataset):
             return data
         else:
             print('cannot find cache file,making...')
+            if not os.path.join(cfg['cache_path']):
+                os.mkdir(cfg['cache_path'])
             data= self.load_data(cfg)
             index = [i for i in range(len(self.data['x']))]
             random.shuffle(index)
@@ -58,6 +57,7 @@ class custom_Dataset(Dataset):
         }
         labels = os.listdir(cfg['data_path'])
         for label in labels:
+            print(label)
             root_path = os.path.join(cfg['data_path'],label)
             img_names = os.listdir(root_path)
             for img_name in img_names:
