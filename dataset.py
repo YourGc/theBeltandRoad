@@ -31,10 +31,10 @@ class custom_Dataset(Dataset):
         result = cv2.merge((bH, gH, rH))
         return result
 
-    def load_cache(self,path,cfg):
+    def load_cache(self,cfg):
         print('load cache...')
-        if os.path.exists(path):
-            with open(os.path.join(path,'cache_train.pkl'),'rb') as f:
+        if os.path.exists(os.path.join(cfg['cache_path'],'cache_train.pkl')):
+            with open(os.path.join(cfg['cache_path'],'cache_train.pkl'),'rb') as f:
                 data = pickle.load(f)
             f.close()
             return data
@@ -48,7 +48,7 @@ class custom_Dataset(Dataset):
             #shuffle
             data['x'] = data['x'][index]
             data['y'] = data['y'][index]
-            with open(os.path.join(path,'cache_train.pkl'),'w') as f:
+            with open(os.path.join(cfg['cache_path'],'cache_train.pkl'),'wb') as f:
                 pickle.dump(data,f)
             f.close()
             return data
