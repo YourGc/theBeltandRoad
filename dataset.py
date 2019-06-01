@@ -43,11 +43,12 @@ class custom_Dataset(Dataset):
             if not os.path.exists(cfg['cache_path']):
                 os.mkdir(cfg['cache_path'])
             data= self.load_data(cfg)
-            index = [i for i in range(len(data['x']))]
-            random.shuffle(index)
-            #shuffle
-            data['x'] = data['x'][index]
-            data['y'] = data['y'][index]
+            #人工shuffle Dataload有shuffle接口
+            # index = [i for i in range(len(data['x']))]
+            # random.shuffle(index)
+            # #shuffle
+            # data['x'] = data['x'][index]
+            # data['y'] = data['y'][index]
             with open(os.path.join(cfg['cache_path'],'cache_train.pkl'),'wb') as f:
                 pickle.dump(data,f)
             f.close()
