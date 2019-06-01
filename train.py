@@ -33,7 +33,7 @@ def train(model,optimizer,scheduler,cfg):
 
     #logger = txt_logger(out_dir, 'training', 'log.txt')
 
-    device = torch.cuda.is_available()
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     step = 0
     best_score = 0
 
