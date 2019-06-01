@@ -2,6 +2,9 @@
 ##  在fold2 256 base的基础上finetune
 cfg = {}
 
+
+#model config
+cfg['model_name'] = r'se_resneXt'
 #数据参数
 cfg['input_size'] = (224,224)
 cfg['data_path'] = r'/content/drive/My Drive/train'
