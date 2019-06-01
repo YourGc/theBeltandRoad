@@ -1,5 +1,6 @@
 # coding:utf-8
 
+
 import torch
 import torch.optim as optim
 import torch.optim.lr_scheduler as lr_scheduler
@@ -8,6 +9,7 @@ import os
 import tqdm
 
 from torch.utils.data import DataLoader
+from torch.autograd import Variable
 from senet import se_resnet50
 from dataset import custom_Dataset
 from config import cfg
@@ -27,7 +29,7 @@ def train(model,optimizer,scheduler,cfg):
     save_dir = os.path.join(cfg['checkpoint_dir'],out_dir)
     create_dir(save_dir)
 
-
+    model.train(True)
     # if cfg['finetune_model'] is not None:
     #     model.load_state_dict(torch.load(cfg['finetune_model']), strict=False)
 
@@ -43,8 +45,11 @@ def train(model,optimizer,scheduler,cfg):
         for idx, (imgs, labels) in enumerate(train_iterator):
             print(labels)
             optimizer.zero_grad()
-            labels = labels.to(device)
-            imgs = imgs.to(device)
+            if device == 'cuda':
+                imgs = Variable(imgs.cuda())
+                labels = Variable(labels.cuda())
+            else:
+                inputs, labels = Variable(imgs), Variable(labels)
             preds = model(imgs)
             loss = criterion(preds, labels)
             loss.backward()
