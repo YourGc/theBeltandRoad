@@ -2,6 +2,7 @@
 
 
 import torch
+import torch.nn as nn
 import torch.optim as optim
 import torch.optim.lr_scheduler as lr_scheduler
 import time
@@ -19,6 +20,19 @@ def create_dir(dir):
     if not os.path.exists(dir):
         os.mkdir(dir)
 
+
+def weight_init(m):
+    if isinstance(m, nn.Linear):
+        nn.init.xavier_normal_(m.weight)
+        nn.init.constant_(m.bias, 0)
+    # 也可以判断是否为conv2d，使用相应的初始化方式
+    elif isinstance(m, nn.Conv2d):
+        nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
+     # 是否为批归一化层
+    elif isinstance(m, nn.BatchNorm2d):
+        nn.init.constant_(m.weight, 1)
+        nn.init.constant_(m.bias, 0)
+
 def train(model,optimizer,scheduler,cfg):
     trainsets = custom_Dataset(cfg)
 
@@ -32,12 +46,15 @@ def train(model,optimizer,scheduler,cfg):
     create_dir(save_dir)
 
     model.train(True)
+    model.apply(weight_init)
+    model.cuda()
+    model = torch.nn.DataParallel(model, device_ids=[0,1,2,3])
     # if cfg['finetune_model'] is not None:
     #     model.load_state_dict(torch.load(cfg['finetune_model']), strict=False)
 
     #logger = txt_logger(out_dir, 'training', 'log.txt')
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = "cuda" if torch.cuda.is_available() else "cpu"
     step = 0
     best_score = 0
 
@@ -45,6 +62,7 @@ def train(model,optimizer,scheduler,cfg):
     for epoch in range(cfg['epochs']):
         total_loss = 0
         for idx, (imgs, labels) in enumerate(trainloader):
+            #print(imgs.shape)
             optimizer.zero_grad()
             if device == 'cuda':
                 imgs = Variable(imgs.cuda())
@@ -58,13 +76,14 @@ def train(model,optimizer,scheduler,cfg):
             loss.backward()
             optimizer.step()
             total_loss += loss.item()
-
+            #print(output,labels)
             cur_correctrs = torch.sum(output == labels.data)
-            batch_acc = cur_correctrs / (cfg['batch_size'])
+            batch_acc = (cur_correctrs.float()) / (cfg['batch_size'])
+
 
             if step % cfg['print_freq'] == 0:
                 print('[Epoch {}/{}]-[batch:{}/{}] lr:{:.4f}  Loss: {:.6f}  Acc: {:.4f}  Time: {:.4f}batch/sec'.format(
-                      epoch+1, cfg['epochs'], idx, round(len(trainloader)/cfg['batch_size'])-1, scheduler.get_lr()[0], loss.item(), batch_acc, \
+                      epoch+1, cfg['epochs'], idx + 1, len(trainloader), scheduler.get_lr()[0], loss.item(), batch_acc, \
                     cfg['print_freq']/(time.time()-tic_batch)))
                 tic_batch = time.time()
             step += 1
