@@ -62,7 +62,7 @@ def train(model,optimizer,scheduler,cfg):
             cur_correctrs = torch.sum(output == labels.data)
             batch_acc = cur_correctrs / (cfg['batch_size'])
 
-            if step % cfg['show_freq'] == 0:
+            if step % cfg['print_freq'] == 0:
                 print('[Epoch {}/{}]-[batch:{}/{}] lr:{:.4f}  Loss: {:.6f}  Acc: {:.4f}  Time: {:.4f}batch/sec'.format(
                       epoch+1, cfg['epochs'], idx, round(len(trainloader)/cfg['batch_size'])-1, scheduler.get_lr()[0], loss.item(), batch_acc, \
                     cfg['print_freq']/(time.time()-tic_batch)))
