@@ -20,4 +20,4 @@ cfg['epochs'] = 100
 cfg['print_freq'] = 10
 cfg['checkpoint_dir'] = r'F:\Chrome-Download\2019bigdata\2019bigdata\train_image\output'
 cfg['checkpoint_dir'] = r'/content/drive/My Drive/output'
-cfg['checkpoint_frequency'] = 10
+cfg['checkpoint_freq'] = 10

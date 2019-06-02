@@ -28,6 +28,7 @@ def train(model,optimizer,scheduler,cfg):
 
     criterion = CELoss()
     save_dir = os.path.join(cfg['checkpoint_dir'],out_dir)
+    model_path = os.path.join(save_dir, '{}_epoch{}.pth')
     create_dir(save_dir)
 
     model.train(True)
@@ -69,8 +70,8 @@ def train(model,optimizer,scheduler,cfg):
                 tic_batch = time.time()
             step += 1
         scheduler.step(epoch)
-        model_path = os.path.join(out_dir, 'model.pth')
-        torch.save(model.state_dict(), model_path)
+        if epoch !=0 and epoch % cfg['checkpoint_freq'] == 0:
+            torch.save(model.state_dict(), model_path.format(cfg['model_name'],epoch))
         # if True:  # epoch>20:
         #     print("Evaluate~~~~~")
         #     model.eval()
