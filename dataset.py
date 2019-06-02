@@ -90,7 +90,7 @@ class custom_Dataset(Dataset):
 
     def __getitem__(self,index):
         img = torch.from_numpy(self.get_img(index))
-        lable = torch.from_numpy(self.data['y'][index])
+        lable = torch.from_numpy(np.array(self.data['y'][index]))
 
         return img,lable
 
