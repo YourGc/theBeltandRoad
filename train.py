@@ -20,19 +20,6 @@ from eval import eval
 from utils.Tools import *
 
 
-
-def weight_init(m):
-    if isinstance(m, nn.Linear):
-        nn.init.xavier_normal_(m.weight)
-        nn.init.constant_(m.bias, 0)
-    # 也可以判断是否为conv2d，使用相应的初始化方式
-    elif isinstance(m, nn.Conv2d):
-        nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
-     # 是否为批归一化层
-    elif isinstance(m, nn.BatchNorm2d):
-        nn.init.constant_(m.weight, 1)
-        nn.init.constant_(m.bias, 0)
-
 def train(model,optimizer,scheduler,cfg):
     trainsets = custom_Dataset(cfg,phase = 'train')
     trainloader = DataLoader(trainsets, num_workers=4,batch_size=cfg['batch_size'],shuffle=True)
@@ -52,10 +39,6 @@ def train(model,optimizer,scheduler,cfg):
     model.apply(weight_init)
     model.cuda()
     model = torch.nn.DataParallel(model, device_ids=[0,1,2,3])
-    # if cfg['finetune_model'] is not None:
-    #     model.load_state_dict(torch.load(cfg['finetune_model']), strict=False)
-
-    #logger = txt_logger(out_dir, 'training', 'log.txt')
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
     step = 0
@@ -97,19 +80,15 @@ def train(model,optimizer,scheduler,cfg):
         train_loss /= len(trainloader)
         train_acc /= len(trainloader) * cfg['batch_size']
         print("Train Epoch {} : mean Accu {:.4f} --- mean Loss {:.6f}".format(epoch + 1,train_acc, train_loss))
-        writer.add_scalar('Train_loss',train_loss,epoch+1)
-        writer.add_scalar('Train_acc',train_acc,epoch+1)
-        train_loss = 0.0
-        train_acc = 0.0
+
         if epoch !=0 and epoch % cfg['checkpoint_freq'] == 0:
             torch.save(model.state_dict(), model_path.format(cfg['model_name'],epoch))
 
-        if True:  # epoch>20:
+        if True:  # eval:
             print("Evaluate at epoch {}".format(epoch + 1))
             model.eval()
             eval_acc,eval_loss = eval(model,valloader,criterion,device,cfg)
-            writer.add_scalar('Val_loss', eval_loss, epoch + 1)
-            writer.add_scalar('Val_acc', eval_acc, epoch + 1)
+
             model.train()
             if best_score < eval_acc:
                 best_score = eval_acc
@@ -120,6 +99,16 @@ def train(model,optimizer,scheduler,cfg):
 
             print("Val Epoch {} : Accu {:.4f} , best Accu: {:.4f} --- mean Loss {:.6f} , min Loss {:.6f}".format(epoch + 1,eval_acc, best_score,eval_loss,min_loss))
 
+        writer.add_scalars('loss', {
+            'train': train_loss,
+            'val': eval_loss
+        }, epoch + 1)
+        writer.add_scalars('accu', {
+            'train': train_acc,
+            'val': eval_acc
+        }, epoch + 1)
+        train_loss = 0.0
+        train_acc = 0.0
         scheduler.step(eval_loss)
 
 if __name__ == '__main__':
@@ -127,6 +116,9 @@ if __name__ == '__main__':
 
     if not os.path.exists(cfg['val_path']):
         split_dataset(cfg)
+
+    img_mean_std(cfg)
+
     model = se_resnet50(9,None)
     optimizer = optim.SGD(model.parameters(), lr=cfg['base_lr'], momentum=0.9, weight_decay=1e-3)
     scheduler = lr_scheduler.ReduceLROnPlateau(optimizer,mode='min',factor=0.2,patience=3,verbose=True,)
