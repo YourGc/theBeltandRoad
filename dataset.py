@@ -62,7 +62,6 @@ class custom_Dataset(Dataset):
         }
         labels = os.listdir(cfg['data_path'])
         for label in labels:
-            print(label)
             root_path = os.path.join(cfg['data_path'],label)
             img_names = os.listdir(root_path)
             for img_name in img_names:

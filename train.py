@@ -45,7 +45,6 @@ def train(model,optimizer,scheduler,cfg):
     for epoch in range(cfg['epochs']):
         total_loss = 0
         for idx, (imgs, labels) in enumerate(trainloader):
-            print(imgs.shape)
             optimizer.zero_grad()
             if device == 'cuda':
                 imgs = Variable(imgs.cuda())
