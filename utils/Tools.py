@@ -51,7 +51,7 @@ def img_mean_std(cfg):
     #input img size
     count = 100*100.0
     #B G R
-    means = np.array([0,0,0],dtype=np.float256)
+    means = np.zeros((3,),dtype=np.float128)
     train_count = 0
     for label in labels:
         label_path = os.path.join(train_path, label)
@@ -67,7 +67,7 @@ def img_mean_std(cfg):
     print("train set BGR mean is {} , {} , {}".format(means[0],means[1],means[2]))
 
     #B G R
-    stds = np.array([0,0,0],dtype=np.float256)
+    stds = np.zeros((3,),dtype=np.float128)
     train_count = 0
     for label in labels:
         label_path = os.path.join(train_path, label)
