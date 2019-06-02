@@ -13,7 +13,6 @@ def eval(model,valloader,criterion,device):
     bacth_acc_count = 0
 
     val_size = len(valloader)
-    print('Epoch')
     with torch.no_grad():
         for idx,(imgs,labels) in tqdm.tqdm(enumerate(valloader)):
 
@@ -29,8 +28,6 @@ def eval(model,valloader,criterion,device):
             bacth_acc_count += torch.sum(preds == labels)
 
         return bacth_acc_count.float()/val_size,total_loss/val_size
-
-
 
 
 

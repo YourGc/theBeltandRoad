@@ -16,8 +16,9 @@ class custom_Dataset(Dataset):
         self.input_size = cfg['input_size']
         self.mean = cfg['mean']
         self.std = cfg['std']
-        self.data= self.load_cache(cfg)
         self.phase = phase
+        self.data= self.load_cache(cfg)
+
 
     def Histogram_Equalization(self,img):
         '''
@@ -34,7 +35,7 @@ class custom_Dataset(Dataset):
         return result
 
     def load_cache(self,cfg):
-        print('load cache...')
+        print('load {} cache...'.format(self.phase))
         if os.path.exists(os.path.join(cfg['cache_path'],'cache_{}.pkl'.format(self.phase))):
             with open(os.path.join(cfg['cache_path'],'cache_{}.pkl'.format(self.phase)),'rb') as f:
                 data = pickle.load(f)

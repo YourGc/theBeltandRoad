@@ -85,8 +85,8 @@ def train(model,optimizer,scheduler,cfg):
 
 
             if step % cfg['print_freq'] == 0:
-                print('[Epoch {}/{}]-[batch:{}/{}] lr:{:.4f}  Loss: {:.6f}  Acc: {:.4f}  Time: {:.4f}batch/sec'.format(
-                      epoch+1, cfg['epochs'], idx + 1, len(trainloader), scheduler.get_lr()[0], loss.item(), batch_acc, \
+                print('[Epoch {}/{}]-[batch:{}/{}]  Loss: {:.6f}  Acc: {:.4f}  Time: {:.4f}batch/sec'.format(
+                      epoch+1, cfg['epochs'], idx + 1, len(trainloader), loss.item(), batch_acc, \
                     cfg['print_freq']/(time.time()-tic_batch)))
                 tic_batch = time.time()
             step += 1
