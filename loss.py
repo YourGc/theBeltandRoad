@@ -18,5 +18,5 @@ class CELoss(nn.Module):
         print(pred)
         preds = torch.argmax(pred, 1)
         print(preds)
-        loss = nn.CrossEntropyLoss()(preds, target)
+        loss = nn.CrossEntropyLoss()(pred, target)
         return loss
