@@ -31,7 +31,7 @@ pretrained_settings = {
             'input_range': [0, 1],
             'mean': [0.485, 0.456, 0.406],
             'std': [0.229, 0.224, 0.225],
-            'num_classes': 1000
+            'num_classes': 9
         }
     },
     'se_resnet101': {

@@ -66,7 +66,7 @@ class custom_Dataset(Dataset):
             img_names = os.listdir(root_path)
             for img_name in img_names:
                 data['x'].append(os.path.join(root_path,img_name))
-                data['y'].append(np.array(int(label)))
+                data['y'].append(np.array(int(label) - 1))
 
         data['x'] = np.array(data['x'])
         data['y'] = np.array(data['y'])
@@ -95,4 +95,4 @@ class custom_Dataset(Dataset):
 
     def __len__(self):
         assert len(self.data['x']) == len(self.data['y']) , "customDataSet Error"
-        return len(self.data)
+        return len(self.data['x'])
