@@ -38,6 +38,7 @@ def train(model,optimizer,scheduler,cfg):
 
     valsets = custom_Dataset(cfg, phase='val')
     valloader = DataLoader(trainsets, num_workers=4, batch_size=cfg['batch_size'], shuffle=True)
+    print(len(valloader))
 
     out_dir = '{}_{}_{}'.format(cfg['model_name'], time.strftime("%Y%m%d"),time.strftime("%H%M%S"))
 
@@ -94,7 +95,7 @@ def train(model,optimizer,scheduler,cfg):
             torch.save(model.state_dict(), model_path.format(cfg['model_name'],epoch))
 
         if True:  # epoch>20:
-            print("Evaluate at epoch {}".format(epoch))
+            print("Evaluate at epoch {}".format(epoch + 1))
             model.eval()
             epoch_acc,epoch_loss = eval(model,valloader,criterion,device)
             model.train()
