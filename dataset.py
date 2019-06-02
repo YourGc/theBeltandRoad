@@ -10,13 +10,14 @@ import torch
 random.seed(666666)
 
 class custom_Dataset(Dataset):
-    def __init__(self,cfg):
+    def __init__(self,cfg,phase):
         super(custom_Dataset).__init__()
         self.cache_path = cfg['cache_path']
         self.input_size = cfg['input_size']
         self.mean = cfg['mean']
         self.std = cfg['std']
         self.data= self.load_cache(cfg)
+        self.phase = phase
 
     def Histogram_Equalization(self,img):
         '''
@@ -34,8 +35,8 @@ class custom_Dataset(Dataset):
 
     def load_cache(self,cfg):
         print('load cache...')
-        if os.path.exists(os.path.join(cfg['cache_path'],'cache_train.pkl')):
-            with open(os.path.join(cfg['cache_path'],'cache_train.pkl'),'rb') as f:
+        if os.path.exists(os.path.join(cfg['cache_path'],'cache_{}.pkl'.format(self.phase))):
+            with open(os.path.join(cfg['cache_path'],'cache_{}.pkl'.format(self.phase)),'rb') as f:
                 data = pickle.load(f)
             f.close()
             return data
@@ -50,7 +51,7 @@ class custom_Dataset(Dataset):
             # #shuffle
             # data['x'] = data['x'][index]
             # data['y'] = data['y'][index]
-            with open(os.path.join(cfg['cache_path'],'cache_train.pkl'),'wb') as f:
+            with open(os.path.join(cfg['cache_path'],'cache_{}.pkl'.format(self.phase)),'wb') as f:
                 pickle.dump(data,f)
             f.close()
             return data
@@ -60,9 +61,9 @@ class custom_Dataset(Dataset):
             'x':[],
             'y':[]
         }
-        labels = os.listdir(cfg['data_path'])
+        labels = os.listdir(cfg['{}_path'.format(self.phase)])
         for label in labels:
-            root_path = os.path.join(cfg['data_path'],label)
+            root_path = os.path.join(cfg['{}_path'.format(self.phase)],label)
             img_names = os.listdir(root_path)
             for img_name in img_names:
                 data['x'].append(os.path.join(root_path,img_name))

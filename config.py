@@ -7,8 +7,9 @@ cfg = {}
 cfg['model_name'] = r'se_resneXt'
 #数据参数
 cfg['input_size'] = (224,224)
-cfg['data_path'] = r'train'
+cfg['train_path'] = r'train'
 #cfg['data_path'] = r'/content/drive/My Drive/train'
+cfg['val_path'] = r'val'
 cfg['cache_path'] = 'cache'
 cfg['mean'] = (0.2,0.2,0.2)
 cfg['std'] = (1,1,1)

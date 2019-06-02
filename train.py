@@ -15,10 +15,9 @@ from senet import se_resnet50
 from dataset import custom_Dataset
 from config import cfg
 from loss import CELoss
+from eval import eval
+from utils.Tools import *
 
-def create_dir(dir):
-    if not os.path.exists(dir):
-        os.mkdir(dir)
 
 
 def weight_init(m):
@@ -34,9 +33,11 @@ def weight_init(m):
         nn.init.constant_(m.bias, 0)
 
 def train(model,optimizer,scheduler,cfg):
-    trainsets = custom_Dataset(cfg)
-
+    trainsets = custom_Dataset(cfg,phase = 'train')
     trainloader = DataLoader(trainsets, num_workers=4,batch_size=cfg['batch_size'],shuffle=True)
+
+    valsets = custom_Dataset(cfg, phase='val')
+    valloader = DataLoader(trainsets, num_workers=4, batch_size=cfg['batch_size'], shuffle=True)
 
     out_dir = '{}_{}_{}'.format(cfg['model_name'], time.strftime("%Y%m%d"),time.strftime("%H%M%S"))
 
@@ -57,6 +58,7 @@ def train(model,optimizer,scheduler,cfg):
     device = "cuda" if torch.cuda.is_available() else "cpu"
     step = 0
     best_score = 0
+    min_loss = 100.0
 
     tic_batch = time.time()
     for epoch in range(cfg['epochs']):
@@ -75,7 +77,8 @@ def train(model,optimizer,scheduler,cfg):
 
             loss.backward()
             optimizer.step()
-            total_loss += loss.item()
+
+            # total_loss += loss.item()
             #print(output,labels)
             cur_correctrs = torch.sum(output == labels.data)
             batch_acc = (cur_correctrs.float()) / (cfg['batch_size'])
@@ -87,32 +90,34 @@ def train(model,optimizer,scheduler,cfg):
                     cfg['print_freq']/(time.time()-tic_batch)))
                 tic_batch = time.time()
             step += 1
-        scheduler.step(epoch)
         if epoch !=0 and epoch % cfg['checkpoint_freq'] == 0:
             torch.save(model.state_dict(), model_path.format(cfg['model_name'],epoch))
-        # if True:  # epoch>20:
-        #     print("Evaluate~~~~~")
-        #     model.eval()
-        #     eval_info = valid_aug(model, evalloader, cfg['img_size'])
-        #     eval_score = eval_info['ious']
-        #     logger.add_scalar('ious', eval_score, step)
-        #     logger.add_scalar('acc', eval_info['acc'], step)
-        #     logger.add_scalar('recall', eval_info['recall'], step)
-        #     model.train()
-        #     if best_score < eval_score:
-        #         best_score = eval_score
-        #         model_path = os.path.join(out_dir, 'best.pth')
-        #         torch.save(model.state_dict(), model_path)
-        #     print("mean ap : {:.4f} , best ap: {:.4f}".format(eval_score, best_score))
-        #     logger.print_info(epoch)
 
+        if True:  # epoch>20:
+            print("Evaluate at epoch {}".format(epoch))
+            model.eval()
+            epoch_acc,epoch_loss = eval(model,valloader,criterion,device)
+            model.train()
+            if best_score < epoch_acc:
+                best_score = epoch_acc
+                best_model_path = os.path.join(save_dir, 'best.pth')
+                torch.save(model.state_dict(), best_model_path)
+            if min_loss > epoch_loss:
+                min_loss = epoch_loss
+
+            print("Epoch {} : Accu {:.4f} , best Accu: {:.4f} --- mean Loss {:.6f} , min Loss {:.6f}".format(epoch,epoch_acc, best_score,epoch_loss,min_loss))
+
+        scheduler.step(epoch_loss)
 
 if __name__ == '__main__':
     create_dir(cfg['checkpoint_dir'])
 
+    if not os.path.exists(cfg['val_path']):
+        split_dataset(cfg)
+
     model = se_resnet50(9,None)
     optimizer = optim.SGD(model.parameters(), lr=cfg['base_lr'], momentum=0.9, weight_decay=1e-3)
-    scheduler = lr_scheduler.CosineAnnealingLR(optimizer, T_max=(cfg['epochs'] // 9) + 1)
+    scheduler = lr_scheduler.ReduceLROnPlateau(optimizer,mode='min',factor=0.2,patience=3,verbose=True,)
 
     #summary(model,(3,224,224))
 
