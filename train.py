@@ -39,13 +39,12 @@ def train(model,optimizer,scheduler,cfg):
 
     valsets = custom_Dataset(cfg, phase='val')
     valloader = DataLoader(valsets, num_workers=4, batch_size=cfg['batch_size'], shuffle=True)
-    print(len(valloader))
 
     out_dir = '{}_{}_{}'.format(cfg['model_name'], time.strftime("%Y%m%d"),time.strftime("%H%M%S"))
     criterion = CELoss()
     save_dir = os.path.join(cfg['checkpoint_dir'],out_dir)
 
-    writer = SummaryWriter('run')
+    writer = SummaryWriter(save_dir)
     model_path = os.path.join(save_dir, '{}_epoch{}.pth')
     create_dir(save_dir)
 
@@ -66,6 +65,7 @@ def train(model,optimizer,scheduler,cfg):
     tic_batch = time.time()
     for epoch in range(cfg['epochs']):
         train_loss = 0.0
+        train_acc = 0.0
         for idx, (imgs, labels) in enumerate(trainloader):
             #print(imgs.shape)
             optimizer.zero_grad()
@@ -84,6 +84,7 @@ def train(model,optimizer,scheduler,cfg):
             train_loss += loss.item()
             #print(output,labels)
             cur_correctrs = torch.sum(output == labels.data)
+            train_acc += cur_correctrs.float()
             batch_acc = (cur_correctrs.float()) / (len(output))
 
             if step % cfg['print_freq'] == 0:
@@ -93,16 +94,22 @@ def train(model,optimizer,scheduler,cfg):
                 tic_batch = time.time()
             step += 1
 
-        writer.add_scalar('Train',train_loss,epoch+1)
+        train_loss /= len(trainloader)
+        train_acc /= len(trainloader) * cfg['batch_size']
+        print("Train Epoch {} : mean Accu {:.4f} --- mean Loss {:.6f}".format(epoch + 1,train_acc, train_loss))
+        writer.add_scalar('Train_loss',train_loss,epoch+1)
+        writer.add_scalar('Train_acc',train_acc,epoch+1)
         train_loss = 0.0
+        train_acc = 0.0
         if epoch !=0 and epoch % cfg['checkpoint_freq'] == 0:
             torch.save(model.state_dict(), model_path.format(cfg['model_name'],epoch))
 
         if True:  # epoch>20:
             print("Evaluate at epoch {}".format(epoch + 1))
             model.eval()
-            eval_acc,eval_loss = eval(model,valloader,criterion,device)
-            writer.add_scalar('Val', eval_loss, epoch + 1)
+            eval_acc,eval_loss = eval(model,valloader,criterion,device,cfg)
+            writer.add_scalar('Val_loss', eval_loss, epoch + 1)
+            writer.add_scalar('Val_acc', eval_acc, epoch + 1)
             model.train()
             if best_score < eval_acc:
                 best_score = eval_acc
@@ -111,7 +118,7 @@ def train(model,optimizer,scheduler,cfg):
             if min_loss > eval_loss:
                 min_loss = eval_loss
 
-            print("Epoch {} : Accu {:.4f} , best Accu: {:.4f} --- mean Loss {:.6f} , min Loss {:.6f}".format(epoch,eval_acc, best_score,eval_loss,min_loss))
+            print("Val Epoch {} : Accu {:.4f} , best Accu: {:.4f} --- mean Loss {:.6f} , min Loss {:.6f}".format(epoch + 1,eval_acc, best_score,eval_loss,min_loss))
 
         scheduler.step(eval_loss)
 

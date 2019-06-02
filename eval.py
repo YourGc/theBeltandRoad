@@ -6,7 +6,7 @@ from torch.autograd import Variable
 import tqdm
 
 
-def eval(model,valloader,criterion,device):
+def eval(model,valloader,criterion,device,cfg):
     model.eval()
 
     total_loss = 0.0
@@ -27,7 +27,7 @@ def eval(model,valloader,criterion,device):
             total_loss += criterion(output,labels)
             bacth_acc_count += torch.sum(preds == labels)
 
-        return bacth_acc_count.float()/val_size,total_loss/val_size
+        return bacth_acc_count.float()/(val_size*cfg['batch_size']),total_loss/val_size
 
 
 
