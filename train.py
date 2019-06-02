@@ -45,7 +45,7 @@ def train(model,optimizer,scheduler,cfg):
     criterion = CELoss()
     save_dir = os.path.join(cfg['checkpoint_dir'],out_dir)
 
-    writer = SummaryWriter(save_dir)
+    writer = SummaryWriter('run')
     model_path = os.path.join(save_dir, '{}_epoch{}.pth')
     create_dir(save_dir)
 
