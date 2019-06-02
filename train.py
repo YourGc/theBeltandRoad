@@ -11,6 +11,7 @@ import tqdm
 
 from torch.utils.data import DataLoader
 from torch.autograd import Variable
+from tensorboardX import SummaryWriter
 from senet import se_resnet50
 from dataset import custom_Dataset
 from config import cfg
@@ -37,13 +38,14 @@ def train(model,optimizer,scheduler,cfg):
     trainloader = DataLoader(trainsets, num_workers=4,batch_size=cfg['batch_size'],shuffle=True)
 
     valsets = custom_Dataset(cfg, phase='val')
-    valloader = DataLoader(trainsets, num_workers=4, batch_size=cfg['batch_size'], shuffle=True)
+    valloader = DataLoader(valsets, num_workers=4, batch_size=cfg['batch_size'], shuffle=True)
     print(len(valloader))
 
     out_dir = '{}_{}_{}'.format(cfg['model_name'], time.strftime("%Y%m%d"),time.strftime("%H%M%S"))
-
     criterion = CELoss()
     save_dir = os.path.join(cfg['checkpoint_dir'],out_dir)
+
+    writer = SummaryWriter(save_dir)
     model_path = os.path.join(save_dir, '{}_epoch{}.pth')
     create_dir(save_dir)
 
@@ -63,7 +65,7 @@ def train(model,optimizer,scheduler,cfg):
 
     tic_batch = time.time()
     for epoch in range(cfg['epochs']):
-        total_loss = 0
+        train_loss = 0.0
         for idx, (imgs, labels) in enumerate(trainloader):
             #print(imgs.shape)
             optimizer.zero_grad()
@@ -79,11 +81,10 @@ def train(model,optimizer,scheduler,cfg):
             loss.backward()
             optimizer.step()
 
-            # total_loss += loss.item()
+            train_loss += loss.item()
             #print(output,labels)
             cur_correctrs = torch.sum(output == labels.data)
-            batch_acc = (cur_correctrs.float()) / (cfg['batch_size'])
-
+            batch_acc = (cur_correctrs.float()) / (len(output))
 
             if step % cfg['print_freq'] == 0:
                 print('[Epoch {}/{}]-[batch:{}/{}]  Loss: {:.6f}  Acc: {:.4f}  Time: {:.4f}batch/sec'.format(
@@ -91,31 +92,34 @@ def train(model,optimizer,scheduler,cfg):
                     cfg['print_freq']/(time.time()-tic_batch)))
                 tic_batch = time.time()
             step += 1
+
+        writer.add_scalar('Train',train_loss,epoch+1)
+        train_loss = 0.0
         if epoch !=0 and epoch % cfg['checkpoint_freq'] == 0:
             torch.save(model.state_dict(), model_path.format(cfg['model_name'],epoch))
 
         if True:  # epoch>20:
             print("Evaluate at epoch {}".format(epoch + 1))
             model.eval()
-            epoch_acc,epoch_loss = eval(model,valloader,criterion,device)
+            eval_acc,eval_loss = eval(model,valloader,criterion,device)
+            writer.add_scalar('Val', eval_loss, epoch + 1)
             model.train()
-            if best_score < epoch_acc:
-                best_score = epoch_acc
+            if best_score < eval_acc:
+                best_score = eval_acc
                 best_model_path = os.path.join(save_dir, 'best.pth')
                 torch.save(model.state_dict(), best_model_path)
-            if min_loss > epoch_loss:
-                min_loss = epoch_loss
+            if min_loss > eval_loss:
+                min_loss = eval_loss
 
-            print("Epoch {} : Accu {:.4f} , best Accu: {:.4f} --- mean Loss {:.6f} , min Loss {:.6f}".format(epoch,epoch_acc, best_score,epoch_loss,min_loss))
+            print("Epoch {} : Accu {:.4f} , best Accu: {:.4f} --- mean Loss {:.6f} , min Loss {:.6f}".format(epoch,eval_acc, best_score,eval_loss,min_loss))
 
-        scheduler.step(epoch_loss)
+        scheduler.step(eval_loss)
 
 if __name__ == '__main__':
     create_dir(cfg['checkpoint_dir'])
 
     if not os.path.exists(cfg['val_path']):
         split_dataset(cfg)
-
     model = se_resnet50(9,None)
     optimizer = optim.SGD(model.parameters(), lr=cfg['base_lr'], momentum=0.9, weight_decay=1e-3)
     scheduler = lr_scheduler.ReduceLROnPlateau(optimizer,mode='min',factor=0.2,patience=3,verbose=True,)
