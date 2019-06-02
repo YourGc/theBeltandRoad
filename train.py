@@ -53,11 +53,13 @@ def train(model,optimizer,scheduler,cfg):
                 inputs, labels = Variable(imgs), Variable(labels)
             preds = model(imgs)
             loss = criterion(preds, labels)
+            output = torch.argmax(preds,dim=1)
+
             loss.backward()
             optimizer.step()
             total_loss += loss.item()
 
-            cur_correctrs = torch.sum(preds == labels.data)
+            cur_correctrs = torch.sum(output == labels.data)
             batch_acc = cur_correctrs / (cfg['batch_size'])
 
             if step % cfg['show_freq'] == 0:

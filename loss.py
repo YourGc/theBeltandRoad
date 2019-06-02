@@ -14,9 +14,5 @@ class CELoss(nn.Module):
         :return: CELoss
         '''
         #这样写可扩展性好
-        print(pred.shape,target.shape)
-        print(pred)
-        preds = torch.argmax(pred, 1)
-        print(preds)
         loss = nn.CrossEntropyLoss()(pred, target)
         return loss
