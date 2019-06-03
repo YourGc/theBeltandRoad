@@ -25,7 +25,7 @@ def train(model,optimizer,scheduler,cfg):
     trainloader = DataLoader(trainsets, num_workers=4,batch_size=cfg['batch_size'],shuffle=True)
 
     valsets = custom_Dataset(cfg, phase='val')
-    valloader = DataLoader(trainsets, num_workers=4, batch_size=cfg['batch_size'], shuffle=True)
+    valloader = DataLoader(valsets, num_workers=4, batch_size=cfg['batch_size'], shuffle=True)
 
     out_dir = '{}_{}_{}'.format(cfg['model_name'], time.strftime("%Y%m%d"),time.strftime("%H%M%S"))
     criterion = CELoss()

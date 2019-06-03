@@ -79,7 +79,7 @@ class custom_Dataset(Dataset):
     def get_img(self,index):
         img = cv2.imread(self.data['x'][index])
         img = cv2.resize(img, self.input_size, interpolation=cv2.INTER_LINEAR)
-        img = self.Histogram_Equalization(img)
+        #img = self.Histogram_Equalization(img)
         img_array = np.array(img, dtype=np.float32)
         img_array = self.preprocessing(img_array)
         img_array = np.transpose(img_array,(2,0,1))
