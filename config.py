@@ -20,5 +20,5 @@ cfg['base_lr'] = 0.01
 cfg['epochs'] = 100
 cfg['print_freq'] = 10
 cfg['checkpoint_dir'] = r'output'
-#cfg['checkpoint_dir'] = r'/content/drive/My Drive/output'
+# cfg['checkpoint_dir'] = r'/content/drive/My Drive/output'
 cfg['checkpoint_freq'] = 10
