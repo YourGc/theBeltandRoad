@@ -71,6 +71,8 @@ def infer():
     result = pd.DataFrame(ans,columns=['AreaID,CategoryID'])
     result.to_csv('submit.csv',index=False,header=False)
 
+if __name__ == '__main__':
+    infer()
 
 
 
