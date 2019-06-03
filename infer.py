@@ -34,9 +34,9 @@ class testDataset(Dataset):
         img = cv2.imread(os.path.join(self.path,self.data[index]))
         img = cv2.resize(img, self.input_size, interpolation=cv2.INTER_LINEAR)
         img = np.array(img,dtype=np.float32)/255
-        img = np.transpose(img,(2,0,1))
         img -=self.mean
         img /= self.std
+        img = np.transpose(img,(2,0,1))
         return img
 
     def __getitem__(self, index):
