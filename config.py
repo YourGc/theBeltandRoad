@@ -2,7 +2,6 @@
 ##  在fold2 256 base的基础上finetune
 cfg = {}
 
-
 #model config
 cfg['model_name'] = r'se_resneXt'
 #数据参数

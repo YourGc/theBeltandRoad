@@ -48,7 +48,6 @@ def split_dataset(cfg):
 def img_mean_std(cfg):
     train_path = cfg['train_path']
     labels = os.listdir(train_path)
-
     #input img size
     count = 100*100.0
     #B G R

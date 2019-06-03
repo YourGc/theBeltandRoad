@@ -7,10 +7,10 @@ import cv2
 import numpy as np
 import random
 import torch
-random.seed(666666)
+random.seed(666)
 
 class custom_Dataset(Dataset):
-    def __init__(self,cfg,phase):
+    def __init__(self,cfg,phase,**kwargs):
         super(custom_Dataset).__init__()
         self.cache_path = cfg['cache_path']
         self.input_size = cfg['input_size']
@@ -46,12 +46,6 @@ class custom_Dataset(Dataset):
             if not os.path.exists(cfg['cache_path']):
                 os.mkdir(cfg['cache_path'])
             data= self.load_data(cfg)
-            #人工shuffle Dataload有shuffle接口
-            # index = [i for i in range(len(data['x']))]
-            # random.shuffle(index)
-            # #shuffle
-            # data['x'] = data['x'][index]
-            # data['y'] = data['y'][index]
             with open(os.path.join(cfg['cache_path'],'cache_{}.pkl'.format(self.phase)),'wb') as f:
                 pickle.dump(data,f)
             f.close()
