@@ -25,7 +25,7 @@ def train(model,optimizer,scheduler,cfg):
     trainloader = DataLoader(trainsets, num_workers=4,batch_size=cfg['batch_size'],shuffle=True)
 
     valsets = custom_Dataset(cfg, phase='val')
-    valloader = DataLoader(valsets, num_workers=4, batch_size=cfg['batch_size'], shuffle=True)
+    valloader = DataLoader(trainsets, num_workers=4, batch_size=cfg['batch_size'], shuffle=True)
 
     out_dir = '{}_{}_{}'.format(cfg['model_name'], time.strftime("%Y%m%d"),time.strftime("%H%M%S"))
     criterion = CELoss()
@@ -70,12 +70,11 @@ def train(model,optimizer,scheduler,cfg):
             train_acc += cur_correctrs.float()
             batch_acc = (cur_correctrs.float()) / (len(output))
 
-            if step % cfg['print_freq'] == 0:
-                print('[Epoch {}/{}]-[batch:{}/{}]  Loss: {:.6f}  Acc: {:.4f}  Time: {:.4f}batch/sec'.format(
-                      epoch+1, cfg['epochs'], idx + 1, len(trainloader), loss.item(), batch_acc, \
+            if idx % cfg['print_freq'] == 0:
+                print('[Epoch {}/{}]-[batch:{}/{}] lr={:.6f} Loss: {:.6f}  Acc: {:.4f}  Time: {:.4f}batch/sec'.format(
+                      epoch+1, cfg['epochs'], idx + 1, len(trainloader), scheduler.get_lr()[0],loss.item(), batch_acc, \
                     cfg['print_freq']/(time.time()-tic_batch)))
                 tic_batch = time.time()
-            step += 1
 
         train_loss /= len(trainloader)
         train_acc /= len(trainloader) * cfg['batch_size']
@@ -109,7 +108,7 @@ def train(model,optimizer,scheduler,cfg):
         }, epoch + 1)
         train_loss = 0.0
         train_acc = 0.0
-        scheduler.step(eval_loss)
+        scheduler.step()
 
 if __name__ == '__main__':
     create_dir(cfg['checkpoint_dir'])
@@ -117,11 +116,12 @@ if __name__ == '__main__':
     if not os.path.exists(cfg['val_path']):
         split_dataset(cfg)
 
-    img_mean_std(cfg)
+    #img_mean_std(cfg)
 
     model = se_resnet50(9,None)
-    optimizer = optim.SGD(model.parameters(), lr=cfg['base_lr'], momentum=0.9, weight_decay=1e-3)
-    scheduler = lr_scheduler.ReduceLROnPlateau(optimizer,mode='min',factor=0.2,patience=3,verbose=True,)
+    optimizer = optim.SGD(model.parameters(), lr=cfg['base_lr'], momentum=0.9, weight_decay=1e-2)
+    scheduler = lr_scheduler.ExponentialLR(optimizer, gamma=0.9)
+    #scheduler = lr_scheduler.ReduceLROnPlateau(optimizer,mode='min',factor=0.2,patience=3,verbose=True,)
 
     #summary(model,(3,224,224))
 

@@ -75,9 +75,11 @@ class custom_Dataset(Dataset):
         return data
 
     def preprocessing(self,img):
+
         img /=255
         img -= self.mean
         img /= self.std
+
         return img
 
     def get_img(self,index):

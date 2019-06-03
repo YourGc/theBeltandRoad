@@ -28,6 +28,7 @@ def create_dir(dir):
 #分离验证集
 def split_dataset(cfg):
     #随机分出20%验证集
+    SPLIT = 0.1
     train_path = cfg['train_path']
     val_path = cfg['val_path']
     create_dir(val_path)
@@ -37,7 +38,7 @@ def split_dataset(cfg):
         label_path = os.path.join(train_path,label)
         save_path = os.path.join(val_path,label)
         pic_names = sorted(os.listdir(label_path))
-        picked_names = random.sample(pic_names,k=round(0.2 * len(pic_names)))
+        picked_names = random.sample(pic_names,k=round(SPLIT * len(pic_names)))
         create_dir(save_path)
 
         for pn in picked_names:
@@ -59,11 +60,12 @@ def img_mean_std(cfg):
         for name in pic_names:
             img = cv2.imread(os.path.join(label_path,name))
             img = np.array(img)
-            means += img.sum(axis=2)/count
+            img = img.sum(axis=0).sum(axis = 0)
+            means += img/count
             train_count +=1
 
     means = means / train_count
-    print(means)
+    means /= 255
     print("train set BGR mean is {} , {} , {}".format(means[0],means[1],means[2]))
 
     #B G R
@@ -74,17 +76,19 @@ def img_mean_std(cfg):
         pic_names = sorted(os.listdir(label_path))
         for name in pic_names:
             img = cv2.imread(os.path.join(label_path,name))
-            img = np.array(img)
-            img[:,:,0] -=means[0]
-            img[:, :, 1] -= means[1]
-            img[:, :, 2] -= means[2]
+            img = np.array(img,dtype = np.float)
+            img[:,:,0] -= means[0] * 255
+            img[:, :, 1] -= means[1] * 255
+            img[:, :, 2] -= means[2] * 255
             img = np.square(img)
-            stds += img.sum(axis=2) / count
+            img = img.sum(axis=0).sum(axis = 0)
+            stds += img / count
             train_count +=1
 
     stds = stds / train_count
-    print(stds)
-    print("train set BGR mean is {} , {} , {}".format(stds[0],stds[1],stds[2]))
+    stds = np.sqrt(stds)
+    stds /= 255
+    print("train set std is {} , {} , {}".format(stds[0],stds[1],stds[2]))
 
 
 

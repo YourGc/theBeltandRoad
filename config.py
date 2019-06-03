@@ -11,8 +11,9 @@ cfg['train_path'] = r'train'
 #cfg['data_path'] = r'/content/drive/My Drive/train'
 cfg['val_path'] = r'val'
 cfg['cache_path'] = 'cache'
-cfg['mean'] = (0.2,0.2,0.2)
-cfg['std'] = (1,1,1)
+#BGR
+cfg['mean'] = (0.62138,0.53756,0.46789)
+cfg['std'] = (0.14795,0.16502,0.18105)
 
 #训练相关
 cfg['batch_size'] = 64
