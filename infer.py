@@ -19,6 +19,7 @@ class testDataset(Dataset):
         super(Dataset,self).__init__()
         self.mean = cfg['mean']
         self.std = cfg['std']
+        self.input_size = cfg['input_size']
         self.path = args.test_path
         self.data = self.get_data()
 
@@ -31,7 +32,9 @@ class testDataset(Dataset):
 
     def get_img(self,index):
         img = cv2.imread(os.path.join(self.path,self.data[index]))
+        img = cv2.resize(img, self.input_size, interpolation=cv2.INTER_LINEAR)
         img = np.array(img,dtype=np.float32)/255
+        img = np.transpose(img,(2,0,1))
         img -=self.mean
         img /= self.std
         return img
