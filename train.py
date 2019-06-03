@@ -38,7 +38,7 @@ def train(model,optimizer,scheduler,cfg):
     model.train(True)
     model.apply(weight_init)
     model.cuda()
-    model = torch.nn.DataParallel(model, device_ids=[0,1,2,3])
+    #model = torch.nn.DataParallel(model, device_ids=[0,1,2,3])
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
     step = 0
