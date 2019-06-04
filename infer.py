@@ -75,7 +75,7 @@ def infer():
             ans.append([str(name[0]).strip('.jpg'),"00"+str(pred)])
 
     result = pd.DataFrame(ans,columns=['AreaID','CategoryID'])
-    result.sort_values(by=['AreaID'])
+    result.sort_values(by=['AreaID'],inplace=True)
     result.to_csv('submit.csv',index=False,header=False,sep = '\t')
 
 if __name__ == '__main__':
