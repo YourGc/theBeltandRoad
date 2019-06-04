@@ -74,7 +74,7 @@ def infer():
             pred = torch.argmax(output).item()
             ans.append([str(name[0]).strip('.jpg'),"00"+str(pred)])
 
-    result = pd.DataFrame(ans,columns=['AreaID,CategoryID'])
+    result = pd.DataFrame(ans,columns=['AreaID','CategoryID'])
     result.sort_values(by=['AreaID'])
     result.to_csv('submit.csv',index=False,header=False,sep = '\t')
 
