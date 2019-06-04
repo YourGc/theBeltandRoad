@@ -56,7 +56,8 @@ def get_args():
 def infer():
     args = get_args()
     model = se_resnet50(9,None)
-    #model = nn.DataParallel(model,device_ids=[int(i) for i in args.gpus.split(',')])
+    #model = nn.DataParallel(model,device_ids=[int(i) for i in args.gpus.split(',') ])
+    model = nn.DataParallel(model, device_ids=[0])
 
     model.load_state_dict(torch.load(args.model_path))
     model.cuda()
