@@ -71,7 +71,7 @@ def infer():
         for idx,(img,name) in tqdm.tqdm(enumerate(testloader)):
             img = Variable(img.cuda())
             output = model(img)
-            pred = torch.argmax(output).item()
+            pred = torch.argmax(output).item() + 1
             ans.append([str(name[0]).strip('.jpg'),"00"+str(pred)])
 
     result = pd.DataFrame(ans,columns=['AreaID','CategoryID'])
