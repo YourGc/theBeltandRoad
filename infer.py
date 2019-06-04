@@ -56,7 +56,7 @@ def get_args():
 def infer():
     args = get_args()
     model = se_resnet50(9,None)
-    model = nn.DataParallel(model,device_ids=[int(i) for i in args.gpus.split(',')])
+    #model = nn.DataParallel(model,device_ids=[int(i) for i in args.gpus.split(',')])
 
     model.load_state_dict(torch.load(args.model_path))
     model.cuda()
@@ -70,11 +70,12 @@ def infer():
         for idx,(img,name) in tqdm.tqdm(enumerate(testloader)):
             img = Variable(img.cuda())
             output = model(img)
-            pred = torch.argmax(output).cpu().int()
-            ans.append([str(name).strip('.jpg'),"00"+str(pred)])
+            pred = torch.argmax(output).item()
+            ans.append([str(name[0]).strip('.jpg'),"00"+str(pred)])
 
     result = pd.DataFrame(ans,columns=['AreaID,CategoryID'])
-    result.to_csv('submit.csv',index=False,header=False)
+    result.sort_values(by=['AreaID'])
+    result.to_csv('submit.csv',index=False,header=False,sep = '\t')
 
 if __name__ == '__main__':
     infer()
