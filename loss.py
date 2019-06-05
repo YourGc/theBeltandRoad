@@ -4,42 +4,20 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class CELoss(nn.Module):
-    def __init__(self):
+    def __init__(self,weight = None):
         super(CELoss,self).__init__()
-
+        self.gamma = 2
+        self.alpha = 0.1
+        self.nll_loss = torch.nn.NLLLoss2d(weight)
     def forward(self, pred,target):
         '''
         :param pre: logit value output by CNN
         :param target: label
         :return: CELoss
         '''
-        #这样写可扩展性好
-        alpha = 0.1
-        gamma = 2
+        probs = F.softmax((pred,1))
+        return self.nll_loss(self.alpha * (1 - probs) ** self.gamma * probs, target)
 
-        #softmax
-        print('---pred')
-        print(pred.shape,pred[0])
-        pros = F.softmax(pred,dim=1)
-        p_max,idx = torch.max(pros,1)
-        print("--pros--")
-        print(pros.shape,pros[0])
-        print("--pmax--")
-        print(p_max.shape,p_max[0])
-
-        p_max = torch.unsqueeze(p_max,1)
-        print(p_max.shape)
-
-        neg_pros = pros[pros != p_max]
-        print(neg_pros.shape)
-        #print(neg_pros[0])
-        pos_pros = pros[pros == p_max]
-        print(pos_pros.shape)
-        #print(pos_pros[0])
-
-        neg_loss = -(1-alpha) * (neg_pros ** gamma) * torch.log(1-neg_pros)
-        pos_loss = -alpha * ((1 - pos_pros) ** gamma) * torch.log(pos_pros)
-        return torch.sum(neg_loss) + torch.sum(pos_loss)
 
 
 
