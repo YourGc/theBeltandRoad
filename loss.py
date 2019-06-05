@@ -15,8 +15,8 @@ class CELoss(nn.Module):
         :return: CELoss
         '''
         probs = F.softmax(pred,1)
-        loss = - (1 - self.alpha) * ( probs ** self.gamma ) * torch.log(1 - probs)
-        loss[target] = - (self.alpha) * (probs[target] ** self.gamma) * torch.log(probs)
+        loss = - (self.alpha) * ( probs ** self.gamma ) * torch.log(1 - probs)
+        loss[target] = - (1 - self.alpha) * (probs[target] ** self.gamma) * torch.log(probs)
 
         return loss.sum()
 
