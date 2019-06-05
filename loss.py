@@ -8,7 +8,6 @@ class CELoss(nn.Module):
         super(CELoss,self).__init__()
         self.gamma = 2
         self.alpha = 0.1
-        self.nll_loss = torch.nn.NLLLoss(weight)
     def forward(self, pred,target):
         '''
         :param pre: logit value output by CNN
@@ -16,7 +15,10 @@ class CELoss(nn.Module):
         :return: CELoss
         '''
         probs = F.softmax(pred,1)
-        return self.nll_loss(self.alpha * (1 - probs) ** self.gamma * probs, target)
+        loss = - (1 - self.alpha) * ( probs ** self.gamma ) * torch.log(1 - probs)
+        loss[target] = - (self.alpha) * (probs[target] ** self.gamma) * torch.log(probs)
+
+        return loss.sum()
 
 
 
