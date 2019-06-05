@@ -21,12 +21,14 @@ class CELoss(nn.Module):
         print('---pred')
         print(pred.shape,pred[0])
         pros = F.softmax(pred,dim=1)
-        p_max,idx = torch.max(pred,1)
-
+        p_max,idx = torch.max(pros,1)
         print("--pros--")
         print(pros.shape,pros[0])
         print("--pmax--")
         print(p_max.shape,p_max[0])
+
+        p_max = p_max.expand(pros.shape)
+        print(p_max[0])
 
         neg_pros = pros[pros == p_max]
         #print(neg_pros[0])
