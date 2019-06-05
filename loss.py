@@ -14,5 +14,22 @@ class CELoss(nn.Module):
         :return: CELoss
         '''
         #这样写可扩展性好
-        loss = nn.CrossEntropyLoss()(pred, target)
-        return loss
+        alpha = 0.1
+        gamma = 2
+
+        #数值稳定的softmax
+        out_max,_ = torch.max(pred)
+        pred -= out_max
+        pred = torch.exp(pred)
+        pros = pred/torch.sum(pred)
+        p_out,idx = torch.max(pros)
+
+        neg_pros = pros[pros == p_out]
+        pos_pros = pros[pros != p_out]
+
+        neg_loss = -(1-alpha) * (neg_pros ** gamma) * torch.log(1-neg_pros)
+        pos_loss = -alpha * ((1 - pos_pros) ** gamma) * torch.log(pos_pros)
+        return torch.sum(neg_loss) + torch.sum(pos_loss)
+
+
+

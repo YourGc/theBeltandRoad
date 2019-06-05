@@ -14,7 +14,7 @@ def get_list(path):
     file_names = os.listdir(path)
     return file_names
 
-def decode_txt(path ,file_names):
+def decode_txt(file_names,path = TRAIN_DIR):
     '''
     AreaID_CategoryID
     000001_001.txt，表示该文件记录区域为000001的用户到访行为，该区域的功能类别为居住区。文件格式为：
@@ -62,7 +62,8 @@ def decode_txt(path ,file_names):
     area_classfication.to_csv('area_calssfication.csv',index=False)
 
 if __name__ == '__main__':
-
+    filenames = get_list(TRAIN_DIR)
+    decode_txt(filenames)
 
 
 
