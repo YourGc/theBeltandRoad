@@ -20,6 +20,7 @@ class CELoss(nn.Module):
         print(probs[0])
         print('compute')
         print((probs ** self.gamma * self.alpha) [0] )
+        print(torch.log(1-probs)[0])
         loss = - (self.alpha) * ( probs ** self.gamma ) * torch.log(1 - probs)
         print(loss[0])
         loss[target] = - (1 - self.alpha) * (probs[target] ** self.gamma) * torch.log(probs)
