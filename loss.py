@@ -19,7 +19,7 @@ class CELoss(nn.Module):
         probs = F.softmax(pred,1)
         print(probs[0])
         print('compute')
-        print(probs ** self.gamma * self.alpha)
+        print((probs ** self.gamma * self.alpha) [0] )
         loss = - (self.alpha) * ( probs ** self.gamma ) * torch.log(1 - probs)
         print(loss[0])
         loss[target] = - (1 - self.alpha) * (probs[target] ** self.gamma) * torch.log(probs)
