@@ -6,7 +6,7 @@ import torch.nn.functional as F
 from torch.autograd import Variable
 
 class CELoss(nn.Module):
-    def __init__(self, class_num, alpha=None, gamma=2, size_average=True):
+    def __init__(self, class_num=9, alpha=0.1, gamma=2, size_average=True):
         super(CELoss, self).__init__()
         if alpha is None:
             self.alpha = Variable(torch.ones(class_num, 1))
