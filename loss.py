@@ -27,7 +27,7 @@ class CELoss(nn.Module):
         print("--pmax--")
         print(p_max.shape,p_max[0])
 
-        p_max = p_max.expand(pros.shape)
+        p_max = torch.unsqueeze(p_max,1)
         print(p_max[0])
 
         neg_pros = pros[pros == p_max]
