@@ -36,7 +36,7 @@ class CELoss(nn.Module):
         pos_pros = pros[pros == p_max]
         print(pos_pros.shape)
         #print(pos_pros[0])
-        exit(0)
+
         neg_loss = -(1-alpha) * (neg_pros ** gamma) * torch.log(1-neg_pros)
         pos_loss = -alpha * ((1 - pos_pros) ** gamma) * torch.log(pos_pros)
         return torch.sum(neg_loss) + torch.sum(pos_loss)
