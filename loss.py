@@ -19,7 +19,7 @@ class CELoss(nn.Module):
 
         #数值稳定的softmax
         print(pred[0])
-        out_max,_ = torch.max(pred,0)
+        out_max,_ = torch.max(pred,1)
         print(out_max[0],_[0])
         pred -= out_max
         pred = torch.exp(pred)
