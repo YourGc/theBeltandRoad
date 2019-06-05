@@ -120,7 +120,7 @@ if __name__ == '__main__':
 
     model = se_resnet50(9,None)
     optimizer = optim.SGD(model.parameters(), lr=cfg['base_lr'], momentum=0.9, weight_decay=1e-2)
-    scheduler = lr_scheduler.ExponentialLR(optimizer, gamma=0.9)
+    scheduler = lr_scheduler.ExponentialLR(optimizer, gamma=0.95)
     #scheduler = lr_scheduler.ReduceLROnPlateau(optimizer,mode='min',factor=0.2,patience=3,verbose=True,)
 
     #summary(model,(3,224,224))

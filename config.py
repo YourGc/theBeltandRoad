@@ -16,7 +16,7 @@ cfg['std'] = (0.14795,0.16502,0.18105)
 
 #训练相关
 cfg['batch_size'] = 64
-cfg['base_lr'] = 0.01
+cfg['base_lr'] = 0.001
 cfg['epochs'] = 100
 cfg['print_freq'] = 10
 cfg['checkpoint_dir'] = r'output'
