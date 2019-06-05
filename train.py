@@ -6,6 +6,7 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.optim.lr_scheduler as lr_scheduler
 import time
+import argparse
 import os
 import tqdm
 
@@ -19,8 +20,15 @@ from loss import CELoss
 from eval import eval
 from utils.Tools import *
 
+def get_args():
+    parses  = argparse.ArgumentParser(description = 'Train config')
+    #parses.add_argument('--gpus' ,type=str,default='0,1,2,3')
+    parses.add_argument('--model_path',type=str,default=None)
+    parses.add_argument('--epoch',type=str,default=None)
+    args = parses.parse_args()
+    return args
 
-def train(model,optimizer,scheduler,cfg):
+def train(model,optimizer,scheduler,cfg,args):
     trainsets = custom_Dataset(cfg,phase = 'train')
     trainloader = DataLoader(trainsets, num_workers=4,batch_size=cfg['batch_size'],shuffle=True)
 
@@ -38,11 +46,24 @@ def train(model,optimizer,scheduler,cfg):
     model.train(True)
     model.apply(weight_init)
     model.cuda()
+
+    #断点重训
+    if args.model_path != None:
+        if args.epoch == None:
+            print('input epoch !')
+            exit(0)
+        model.load_state_dict(torch.load(args.model_path))
+        new_lr = cfg['base_lr'] * (cfg['gamma'] ** args.epoch)
+        for param_group in optimizer.param_groups:
+            param_group["lr"] = new_lr
+
     #model = torch.nn.DataParallel(model, device_ids=[0,1,2,3])
+
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
     step = 0
     best_score = 0
+    best_epoch = -1
     min_loss = 100.0
 
     tic_batch = time.time()
@@ -87,16 +108,16 @@ def train(model,optimizer,scheduler,cfg):
             print("Evaluate at epoch {}".format(epoch + 1))
             model.eval()
             eval_acc,eval_loss = eval(model,valloader,criterion,device,cfg)
-
             model.train()
             if best_score < eval_acc:
                 best_score = eval_acc
+            if min_loss > eval_loss:
                 best_model_path = os.path.join(save_dir, 'best.pth')
                 torch.save(model.state_dict(), best_model_path)
-            if min_loss > eval_loss:
+                best_epoch = epoch
                 min_loss = eval_loss
 
-            print("Val Epoch {} : Accu {:.4f} , best Accu: {:.4f} --- mean Loss {:.6f} , min Loss {:.6f}".format(epoch + 1,eval_acc, best_score,eval_loss,min_loss))
+            print("Val Epoch {} : Accu {:.4f} , best Accu: {:.4f} --- mean Loss {:.6f} , min Loss {:.6f} , best at epoch {}".format(epoch + 1,eval_acc, best_score,eval_loss,min_loss,best_epoch))
 
         writer.add_scalars('loss', {
             'train': train_loss,
@@ -117,13 +138,14 @@ if __name__ == '__main__':
         split_dataset(cfg)
 
     #img_mean_std(cfg)
+    args = get_args()
 
     model = se_resnet50(9,None)
     optimizer = optim.SGD(model.parameters(), lr=cfg['base_lr'], momentum=0.9, weight_decay=1e-2)
-    scheduler = lr_scheduler.ExponentialLR(optimizer, gamma=0.95)
+    scheduler = lr_scheduler.ExponentialLR(optimizer, gamma=cfg['gamma'])
     #scheduler = lr_scheduler.ReduceLROnPlateau(optimizer,mode='min',factor=0.2,patience=3,verbose=True,)
 
     #summary(model,(3,224,224))
 
-    train(model,optimizer,scheduler,cfg)
+    train(model,optimizer,scheduler,cfg,args)
 

@@ -3,7 +3,7 @@ import pandas as pd
 import os
 import numpy as np
 
-TRAIN_DIR = r'F:\Chrome-Download\2019bigdata\2019bigdata\train_visit\train'
+TRAIN_DIR = r'../train_visit'
 
 
 def get_list(path):
