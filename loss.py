@@ -24,6 +24,7 @@ class CELoss(nn.Module):
         #torch.log是以e为底数的ln
         loss = - (self.alpha) * ( probs ** self.gamma ) * torch.log(1 - probs)
         print(loss[0])
+        print(target.shape)
         print(probs[target].shape,probs[target][0])
         loss[target] = - (1 - self.alpha) * (probs[target] ** self.gamma) * torch.log(probs)
         print(loss[0])
