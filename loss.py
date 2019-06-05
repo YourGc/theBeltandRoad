@@ -18,11 +18,11 @@ class CELoss(nn.Module):
         gamma = 2
 
         #数值稳定的softmax
-        out_max,_ = torch.max(pred)
+        out_max,_ = torch.max(pred,0)
         pred -= out_max
         pred = torch.exp(pred)
-        pros = pred/torch.sum(pred)
-        p_out,idx = torch.max(pros)
+        pros = pred/torch.sum(pred,0)
+        p_out,idx = torch.max(pros,0)
 
         neg_pros = pros[pros == p_out]
         pos_pros = pros[pros != p_out]
