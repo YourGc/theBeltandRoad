@@ -28,13 +28,13 @@ class CELoss(nn.Module):
         print(p_max.shape,p_max[0])
 
         p_max = torch.unsqueeze(p_max,1)
-        print(p_max)
+        print(p_max.shape)
 
-        neg_pros = pros[pros == p_max]
-        print(neg_pros)
+        neg_pros = pros[pros != p_max]
+        print(neg_pros.shape)
         #print(neg_pros[0])
-        pos_pros = pros[pros != p_max]
-        print(pos_pros)
+        pos_pros = pros[pros == p_max]
+        print(pos_pros.shape)
         #print(pos_pros[0])
         exit(0)
         neg_loss = -(1-alpha) * (neg_pros ** gamma) * torch.log(1-neg_pros)
