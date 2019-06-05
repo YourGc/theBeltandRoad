@@ -20,8 +20,8 @@ class CELoss(nn.Module):
         #softmax
         print('---pred')
         print(pred.shape,pred[0])
-        pros = F.softmax(pred,dim=0)
-        p_max,idx = torch.max(pred,0)
+        pros = F.softmax(pred,dim=1)
+        p_max,idx = torch.max(pred,1)
 
         print("--pros--")
         print(pros.shape,pros[0])
