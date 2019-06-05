@@ -22,6 +22,7 @@ class CELoss(nn.Module):
         out_max,_ = torch.max(pred,1)
         print(out_max[0],_[0])
         pred -= out_max
+        print(pred[0])
         pred = torch.exp(pred)
         print(pred[0])
         pros = pred/torch.sum(pred,0)
