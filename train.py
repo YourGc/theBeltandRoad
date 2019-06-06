@@ -53,7 +53,7 @@ def train(model,optimizer,scheduler,cfg,args):
             print('input epoch !')
             exit(0)
         model.load_state_dict(torch.load(args.model_path))
-        new_lr = cfg['base_lr'] * (cfg['gamma'] ** args.epoch)
+        new_lr = cfg['base_lr'] * (cfg['gamma'] ** int(args.epoch))
         for param_group in optimizer.param_groups:
             param_group["lr"] = new_lr
 
