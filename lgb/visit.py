@@ -3,7 +3,7 @@ import pandas as pd
 import os
 import numpy as np
 
-TRAIN_DIR = r'../train_visit/train'
+TRAIN_DIR = r'../train_txt'
 
 
 def get_list(path):
