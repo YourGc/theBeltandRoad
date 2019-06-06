@@ -1,6 +1,4 @@
 # coding:utf-8
-
-
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -54,6 +52,7 @@ def train(model,optimizer,scheduler,cfg,args):
             exit(0)
         model.load_state_dict(torch.load(args.model_path))
         new_lr = cfg['base_lr'] * (cfg['gamma'] ** int(args.epoch))
+        print(new_lr)
         for param_group in optimizer.param_groups:
             param_group["lr"] = new_lr
 
