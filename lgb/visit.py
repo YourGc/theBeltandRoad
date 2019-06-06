@@ -2,6 +2,7 @@
 import pandas as pd
 import os
 import numpy as np
+import tqdm
 
 TRAIN_DIR = r'../train_txt'
 
@@ -34,7 +35,7 @@ def decode_txt(file_names,path = TRAIN_DIR):
     visit_columns = ['AreaID','UserID','Day'] + [str(i) for i in range(24)]
     classfier_columns = ['AreaID','CategoryID']
 
-    for name in file_names:
+    for name in tqdm.tqdm(file_names):
         AreaID = name[:6]
         CategoryID = name[7:10]
         area_classfication.append([AreaID,CategoryID])
