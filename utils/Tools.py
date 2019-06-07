@@ -20,7 +20,7 @@ def delete_error_pics(cfg):
     for name in error_pics:
         label = name[7:10]
         label_dir = os.path.join(cfg['train_path'],label)
-        if os._exists(os.path.join(label_dir,name)):
+        if os.path.exists(os.path.join(label_dir,name)):
             shutil.move(os.path.join(label_dir,name),os.path.join(error_path,name))
         else: continue
 
@@ -168,7 +168,7 @@ def data_sample(cfg,phase = None):
                 dis -= 1
                 pic_name = random.choice(select_pics)
                 method = random.choice(methods)
-                img = cv2.imread(os.path.join(cfg['train'],pic_name))
+                img = cv2.imread(os.path.join(cfg['train_path'],pic_name))
                 if method == 'mirror-l':
                     img = cv2.flip(img,1)
                     fix_name = str(pic_name).strip() + '_ml.jpg'
