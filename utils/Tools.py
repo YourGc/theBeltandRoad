@@ -202,6 +202,7 @@ def data_sample(cfg,phase = None):
     val_data['x'] = np.array(val_data['x'])
     val_data['y'] = np.array(val_data['y'])
 
+    create_dir(cfg['cache_path'])
     with open(os.path.join(cfg['cache_path'],'cache_train.pkl'),'wb') as f:
         pickle.dump(train_data,f)
     f.close()
