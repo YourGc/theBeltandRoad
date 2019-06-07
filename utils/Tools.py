@@ -164,27 +164,26 @@ def data_sample(cfg,phase = None):
             select_pics = pics
             while dis != 0:
                 dis -= 1
+                random.seed(dis)
                 pic_name = random.choice(select_pics)
                 method = random.choice(methods)
                 img = cv2.imread(os.path.join(cfg['train_path'],label,pic_name))
                 if method == 'mirror-l':
                     img = cv2.flip(img,1)
                     fix_name = os.path.join(cfg['train_path'],label,str(pic_name).strip('.jpg') + '_ml.jpg')
-                    if fix_name == pic_name :print(fix_name)
-                    cv2.imwrite(fix_name,img)
                 elif method == 'mirror-r':
                     img = cv2.flip(img, 0)
                     fix_name = os.path.join(cfg['train_path'],label,str(pic_name).strip('.jpg') + '_mr.jpg')
-                    cv2.imwrite(fix_name, img)
                 elif method == 'rotation-90':
                     img = cv2.rotate(img,cv2.ROTATE_90_CLOCKWISE)
                     fix_name = os.path.join(cfg['train_path'],label,str(pic_name).strip('.jpg') + '_r+9.jpg')
-                    cv2.imwrite(fix_name, img)
                 elif method == 'rotation+90':
                     img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
                     fix_name = os.path.join(cfg['train_path'],label,str(pic_name).strip('.jpg') + '_r-9.jpg')
-                    cv2.imwrite(fix_name, img)
+                while os.path.exists(fix_name): fix_name = fix_name.strip('.jpg') + 'c.jpg'
+                cv2.imwrite(fix_name, img)
                 select_pics.append(fix_name)
+                random.shuffle(select_pics)
         print("label {} count : {}".format(label,len(select_pics)))
         #make splitation
         train_sample,val_sample = split_dataset_step(cfg,select_pics)
