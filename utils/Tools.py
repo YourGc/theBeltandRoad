@@ -167,7 +167,8 @@ def data_sample(cfg,phase = None):
                 #random.seed(dis)
                 pic_name = random.choice(select_pics)
                 method = random.choice(methods)
-                img = cv2.imread(os.path.join(cfg['train_path'],label,pic_name))
+                img_dir = cfg['train_path'] + r'/' + label + r'/' + pic_name
+                img = cv2.imread(img_dir)
                 if method == 'mirror-l':
                     img = cv2.flip(img,1)
                     fix_name = str(pic_name).strip('.jpg') + '_ml.jpg'
@@ -180,8 +181,7 @@ def data_sample(cfg,phase = None):
                 elif method == 'rotation+90':
                     img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
                     fix_name = str(pic_name).strip('.jpg') + '_r-9.jpg'
-                fix_name = os.path.join(cfg['train_path'],label,fix_name)
-                if not fix_name.startswith('.'): fix_name = '.'+fix_name
+                fix_name = cfg['train_path'] + r'/' + label + r'/' + fix_name
                 while os.path.exists(fix_name): fix_name = fix_name.strip('.jpg') + '_c.jpg'
                 cv2.imwrite(fix_name, img)
                 select_pics.append(fix_name)
