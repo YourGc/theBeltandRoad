@@ -170,6 +170,7 @@ def data_sample(cfg,phase = None):
                 if method == 'mirror-l':
                     img = cv2.flip(img,1)
                     fix_name = os.path.join(cfg['train_path'],label,str(pic_name).strip('.jpg') + '_ml.jpg')
+                    if fix_name == pic_name :print(fix_name)
                     cv2.imwrite(fix_name,img)
                 elif method == 'mirror-r':
                     img = cv2.flip(img, 0)
@@ -184,7 +185,7 @@ def data_sample(cfg,phase = None):
                     fix_name = os.path.join(cfg['train_path'],label,str(pic_name).strip('.jpg') + '_r-9.jpg')
                     cv2.imwrite(fix_name, img)
                 select_pics.append(fix_name)
-            print("label {} count : {}".format(label,len(select_pics)))
+        print("label {} count : {}".format(label,len(select_pics)))
         #make splitation
         train_sample,val_sample = split_dataset_step(cfg,select_pics)
         for sample in train_sample:
