@@ -44,7 +44,7 @@ class custom_Dataset(Dataset):
             f.close()
             return data
         else:
-            # print('cannot find cache file,making...')
+            print('cannot find cache file,making...')
             # if not os.path.exists(cfg['cache_path']):
             #     os.mkdir(cfg['cache_path'])
             # data= self.load_data(cfg)
