@@ -164,23 +164,25 @@ def data_sample(cfg,phase = None):
             select_pics = pics
             while dis != 0:
                 dis -= 1
-                random.seed(dis)
+                #random.seed(dis)
                 pic_name = random.choice(select_pics)
                 method = random.choice(methods)
                 img = cv2.imread(os.path.join(cfg['train_path'],label,pic_name))
                 if method == 'mirror-l':
                     img = cv2.flip(img,1)
-                    fix_name = os.path.join(cfg['train_path'],label,str(pic_name).strip('.jpg') + '_ml.jpg')
+                    fix_name = str(pic_name).strip('.jpg') + '_ml.jpg'
                 elif method == 'mirror-r':
                     img = cv2.flip(img, 0)
-                    fix_name = os.path.join(cfg['train_path'],label,str(pic_name).strip('.jpg') + '_mr.jpg')
+                    fix_name = str(pic_name).strip('.jpg') + '_mr.jpg'
                 elif method == 'rotation-90':
                     img = cv2.rotate(img,cv2.ROTATE_90_CLOCKWISE)
-                    fix_name = os.path.join(cfg['train_path'],label,str(pic_name).strip('.jpg') + '_r+9.jpg')
+                    fix_name = str(pic_name).strip('.jpg') + '_r+9.jpg'
                 elif method == 'rotation+90':
                     img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
-                    fix_name = os.path.join(cfg['train_path'],label,str(pic_name).strip('.jpg') + '_r-9.jpg')
-                while os.path.exists(fix_name): fix_name = fix_name.strip('.jpg') + 'c.jpg'
+                    fix_name = str(pic_name).strip('.jpg') + '_r-9.jpg'
+
+                fix_name = os.path.join(cfg['train_path'],label,fix_name)
+                while os.path.exists(fix_name): fix_name = fix_name.strip('.jpg') + '_c.jpg'
                 cv2.imwrite(fix_name, img)
                 select_pics.append(fix_name)
                 random.shuffle(select_pics)
