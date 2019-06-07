@@ -54,11 +54,8 @@ def split_dataset_step(cfg,select_pics):
     :return:
     '''
     SPLIT = 0.1
-    train_path = cfg['train_path']
-    cache_path = cfg['cache_path']
-    create_dir(cache_path)
 
-    count = SPLIT * len(select_pics)
+    count = int(SPLIT * len(select_pics))
     val_sample = random.sample(select_pics,count)
     train_sample = [sample for sample in select_pics if sample not in val_sample]
     return train_sample,val_sample
