@@ -47,7 +47,7 @@ def train(model,optimizer,scheduler,cfg,args):
 
     #断点重训
     if args.model_path != None:
-        if args.epoch == None:
+        if args.start_epoch == None:
             print('input epoch !')
             exit(0)
         model.load_state_dict(torch.load(args.model_path))
