@@ -22,7 +22,7 @@ def get_args():
     parses  = argparse.ArgumentParser(description = 'Train config')
     #parses.add_argument('--gpus' ,type=str,default='0,1,2,3')
     parses.add_argument('--model_path',type=str,default=None)
-    parses.add_argument('--epoch',type=str,default=None)
+    parses.add_argument('--start_epoch',type=int,default=0)
     args = parses.parse_args()
     return args
 
@@ -51,10 +51,9 @@ def train(model,optimizer,scheduler,cfg,args):
             print('input epoch !')
             exit(0)
         model.load_state_dict(torch.load(args.model_path))
-        new_lr = cfg['base_lr'] * (cfg['gamma'] ** int(args.epoch))
-        print(new_lr)
+        lr = cfg['base_lr'] * (cfg['gamma'] ** int(args.epoch))
         for param_group in optimizer.param_groups:
-            param_group["lr"] = new_lr
+            param_group["lr"] = lr
 
     #model = torch.nn.DataParallel(model, device_ids=[0,1,2,3])
 
@@ -66,7 +65,7 @@ def train(model,optimizer,scheduler,cfg,args):
     min_loss = 100.0
 
     tic_batch = time.time()
-    for epoch in range(cfg['epochs']):
+    for epoch in range(args.start_epoch,cfg['epochs']):
         train_loss = 0.0
         train_acc = 0.0
         for idx, (imgs, labels) in enumerate(trainloader):
@@ -113,7 +112,7 @@ def train(model,optimizer,scheduler,cfg,args):
             if min_loss > eval_loss:
                 best_model_path = os.path.join(save_dir, 'best.pth')
                 torch.save(model.state_dict(), best_model_path)
-                best_epoch = epoch
+                best_epoch = epoch + 1
                 min_loss = eval_loss
 
             print("Val Epoch {} : Accu {:.4f} , best Accu: {:.4f} --- mean Loss {:.6f} , min Loss {:.6f} , best at epoch {}".format(epoch + 1,eval_acc, best_score,eval_loss,min_loss,best_epoch))
