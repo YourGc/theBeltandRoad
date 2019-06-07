@@ -158,7 +158,7 @@ def data_sample(cfg,phase = None):
     }
     labels = os.listdir(cfg['train_path'])
     for label in labels:
-        pics = os.path.join(os.path.join(cfg['train'],label))
+        pics = os.path.join(os.path.join(cfg['train_path'],label))
         if len(pics) >= TARGET_COUNT: #超过样本数，降采样
             select_pics = random.sample(pics,TARGET_COUNT)
         else: #过采样
