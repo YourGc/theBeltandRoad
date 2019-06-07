@@ -41,15 +41,16 @@ class CELoss(nn.Module):
 
         neg_log_p = (1 - neg_probs).log()
         log_p = probs.log()
-        # print('probs size= {}'.format(probs.size()))
+        print('neg_log_p size= {}'.format(neg_log_p.size()))
+        print('log_p size= {}'.format(log_p.size()))
         # print(probs)
 
         #alpha = 1
         neg_batch_loss = - (torch.pow(neg_probs, self.gamma)) * neg_log_p
         batch_loss = -alpha * (torch.pow((1 - probs), self.gamma)) * log_p
         print('-----bacth_loss------')
-        print("pos_loss:" + batch_loss.mean())
-        print("neg_loss:" + neg_batch_loss.mean())
+        print("pos_loss:{}".format(batch_loss.mean().item()))
+        print("neg_loss:{}".format(neg_batch_loss.mean()))
 
         loss = neg_batch_loss + batch_loss
         if self.size_average:
