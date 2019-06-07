@@ -162,27 +162,33 @@ def data_sample(cfg,phase = None):
         else: #过采样
             dis = TARGET_COUNT - len(pics)
             select_pics = pics
+            print("label {} start count : {} , dis :{}".format(label,len(select_pics),dis))
             while dis != 0:
                 dis -= 1
                 #random.seed(dis)
+                pic_name = None
                 pic_name = random.choice(select_pics)
+                #print(pic_name)
                 method = random.choice(methods)
                 img = cv2.imread(os.path.join(cfg['train_path'],label,pic_name))
                 if method == 'mirror-l':
                     img = cv2.flip(img,1)
-                    fix_name = str(pic_name).strip('.jpg') + '_ml.jpg'
+                    fix_name = str(pic_name)[:-4] + '_ml.jpg'
                 elif method == 'mirror-r':
                     img = cv2.flip(img, 0)
-                    fix_name = str(pic_name).strip('.jpg') + '_mr.jpg'
+                    fix_name = str(pic_name)[:-4] + '_mr.jpg'
                 elif method == 'rotation-90':
                     img = cv2.rotate(img,cv2.ROTATE_90_CLOCKWISE)
-                    fix_name = str(pic_name).strip('.jpg') + '_r+9.jpg'
+                    fix_name = str(pic_name)[:-4] + '_r+9.jpg'
                 elif method == 'rotation+90':
                     img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
-                    fix_name = str(pic_name).strip('.jpg') + '_r-9.jpg'
-                fix_name = os.path.join(cfg['train_path'],label,fix_name)
-                while os.path.exists(fix_name): fix_name = fix_name[:-4] + '_c.jpg'
-                cv2.imwrite(fix_name, img)
+                    fix_name = str(pic_name)[:-4] + '_r-9.jpg'
+                save_path = os.path.join(cfg['train_path'],label,fix_name)
+                while os.path.exists(save_path): 
+                    save_path = save_path[:-4] + '_c.jpg'
+                    fix_name = fix_name[:-4] + '_c.jpg'
+                #print(save_path,fix_name)
+                cv2.imwrite(save_path, img)
                 select_pics.append(fix_name)
                 random.shuffle(select_pics)
         print("label {} count : {}".format(label,len(select_pics)))
