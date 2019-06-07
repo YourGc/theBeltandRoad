@@ -29,8 +29,8 @@ class CELoss(nn.Module):
         ids = targets.view(-1, 1)
         class_mask.scatter_(1, ids.data, 1.)
 
-        pos_idx = class_mask.gt(1)
-        neg_idx = class_mask.le(1)
+        pos_idx = class_mask.gt(0.5)
+        neg_idx = class_mask.le(0.5)
         print(pos_idx)
         # #neg loss
         # neg_class_mask  = 1 - class_mask
