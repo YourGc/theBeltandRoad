@@ -1,6 +1,4 @@
 # coding:utf-8
-
-
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -24,7 +22,7 @@ def get_args():
     parses  = argparse.ArgumentParser(description = 'Train config')
     #parses.add_argument('--gpus' ,type=str,default='0,1,2,3')
     parses.add_argument('--model_path',type=str,default=None)
-    parses.add_argument('--epoch',type=str,default=None)
+    parses.add_argument('--start_epoch',type=int,default=0)
     args = parses.parse_args()
     return args
 
@@ -53,9 +51,10 @@ def train(model,optimizer,scheduler,cfg,args):
             print('input epoch !')
             exit(0)
         model.load_state_dict(torch.load(args.model_path))
-        new_lr = cfg['base_lr'] * (cfg['gamma'] ** int(args.epoch))
+        lr = cfg['base_lr'] * (cfg['gamma'] ** int(args.epoch))
+        print('change base lr {} to {} at start epoch {}'.format(cfg['base_lr'],lr,args.epoch))
         for param_group in optimizer.param_groups:
-            param_group["lr"] = new_lr
+            param_group["lr"] = lr
 
     #model = torch.nn.DataParallel(model, device_ids=[0,1,2,3])
 
@@ -67,7 +66,7 @@ def train(model,optimizer,scheduler,cfg,args):
     min_loss = 100.0
 
     tic_batch = time.time()
-    for epoch in range(cfg['epochs']):
+    for epoch in range(args.start_epoch,cfg['epochs']):
         train_loss = 0.0
         train_acc = 0.0
         for idx, (imgs, labels) in enumerate(trainloader):
@@ -114,7 +113,7 @@ def train(model,optimizer,scheduler,cfg,args):
             if min_loss > eval_loss:
                 best_model_path = os.path.join(save_dir, 'best.pth')
                 torch.save(model.state_dict(), best_model_path)
-                best_epoch = epoch
+                best_epoch = epoch + 1
                 min_loss = eval_loss
 
             print("Val Epoch {} : Accu {:.4f} , best Accu: {:.4f} --- mean Loss {:.6f} , min Loss {:.6f} , best at epoch {}".format(epoch + 1,eval_acc, best_score,eval_loss,min_loss,best_epoch))
@@ -141,7 +140,11 @@ if __name__ == '__main__':
     args = get_args()
 
     model = se_resnet50(9,None)
-    optimizer = optim.SGD(model.parameters(), lr=cfg['base_lr'], momentum=0.9, weight_decay=1e-2)
+    optimizer = optim.SGD(
+                filter(lambda p: p.requires_grad, model.parameters()),
+                lr = cfg['base_lr'],
+                momentum=0.9, weight_decay=0.001
+            )
     scheduler = lr_scheduler.ExponentialLR(optimizer, gamma=cfg['gamma'])
     #scheduler = lr_scheduler.ReduceLROnPlateau(optimizer,mode='min',factor=0.2,patience=3,verbose=True,)
 

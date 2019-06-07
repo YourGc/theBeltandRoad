@@ -29,6 +29,9 @@ class CELoss(nn.Module):
         ids = targets.view(-1, 1)
         class_mask.scatter_(1, ids.data, 1.)
 
+        #neg loss
+        neg_class_mask  = 1 - class_mask
+
         if inputs.is_cuda and not self.alpha.is_cuda:
             self.alpha = self.alpha.cuda()
         alpha = self.alpha[ids.data.view(-1)]

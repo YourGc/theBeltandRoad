@@ -8,6 +8,7 @@ cfg['model_name'] = r'se_resneXt'
 cfg['input_size'] = (224,224)
 cfg['train_path'] = r'../train'
 #cfg['data_path'] = r'/content/drive/My Drive/train'
+cfg['error_samples'] = r'../error_samples.txt'
 cfg['val_path'] = r'../val'
 cfg['cache_path'] = 'cache'
 #BGR

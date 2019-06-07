@@ -17,8 +17,15 @@ class custom_Dataset(Dataset):
         self.mean = cfg['mean']
         self.std = cfg['std']
         self.phase = phase
+        self.ERROR_PICS = self.filter(cfg['error_samples'])
         self.data= self.load_cache(cfg)
 
+    def filter(self,path):
+        with open(path,'r') as f:
+            lines = f.readline()
+        f.close()
+
+        return eval(lines.strip())
 
     def Histogram_Equalization(self,img):
         '''
@@ -61,6 +68,7 @@ class custom_Dataset(Dataset):
             root_path = os.path.join(cfg['{}_path'.format(self.phase)],label)
             img_names = os.listdir(root_path)
             for img_name in img_names:
+                if img_name in self.ERROR_PICS:continue
                 data['x'].append(os.path.join(root_path,img_name))
                 data['y'].append(np.array(int(label) - 1))
 

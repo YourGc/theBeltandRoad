@@ -89,6 +89,35 @@ def img_mean_std(cfg):
     stds /= 255
     print("train set std is {} , {} , {}".format(stds[0],stds[1],stds[2]))
 
+#直方图均衡化
+def Histogram_Equalization(img):
+    '''
+    :param img: img file(cv2)
+    :return: img after HE
+    '''
+    #split channle
+    (b, g, r) = cv2.split(img)
+    bH = cv2.equalizeHist(b)
+    gH = cv2.equalizeHist(g)
+    rH = cv2.equalizeHist(r)
+    # merge
+    result = cv2.merge((bH, gH, rH))
+    return result
+
+if __name__ == '__main__':
+    dir = r'F:\Chrome-Download\2019bigdata\2019bigdata\train_image\train\001'
+    save_dir = r'F:\Chrome-Download\2019bigdata\2019bigdata\train_image\train\001_aug'
+    create_dir(save_dir)
+    files = os.listdir(dir)
+    for file in files:
+        path = os.path.join(dir,file)
+        img = cv2.imread(path)
+        img = Histogram_Equalization(img)
+
+        cv2.imwrite(os.path.join(save_dir,file),img)
+
+
+
 
 
 
