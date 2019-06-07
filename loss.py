@@ -39,13 +39,13 @@ class CELoss(nn.Module):
         neg_probs = (P * neg_class_mask).sum(1).view(-1,1)
         probs = (P * class_mask).sum(1).view(-1, 1)
 
-        neg_log_p = neg_probs.log()
+        neg_log_p = (1 - neg_probs).log()
         log_p = probs.log()
         # print('probs size= {}'.format(probs.size()))
         # print(probs)
 
         #alpha = 1
-        neg_batch_loss = - (torch.pow((1 - neg_probs), self.gamma)) * neg_log_p
+        neg_batch_loss = - (torch.pow(neg_probs, self.gamma)) * neg_log_p
         batch_loss = -alpha * (torch.pow((1 - probs), self.gamma)) * log_p
         # print('-----bacth_loss------')
         # print(batch_loss)
