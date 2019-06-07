@@ -31,6 +31,7 @@ class CELoss(nn.Module):
 
         pos_idx = class_mask.gt(1)
         neg_idx = class_mask.le(1)
+        print(pos_idx)
         # #neg loss
         # neg_class_mask  = 1 - class_mask
 
