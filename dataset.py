@@ -18,6 +18,7 @@ class custom_Dataset(Dataset):
         self.mean = cfg['mean']
         self.std = cfg['std']
         self.phase = phase
+        self.cfg = cfg
         self.data= self.load_cache(cfg)
 
 
@@ -81,7 +82,8 @@ class custom_Dataset(Dataset):
         return img
 
     def get_img(self,index):
-        img = cv2.imread(self.data['x'][index])
+        img_dir = os.path.join(self.cfg['train_path'],self.data['y'][index],self.data['x'][index])
+        img = cv2.imread(img_dir)
         img = cv2.resize(img, self.input_size, interpolation=cv2.INTER_LINEAR)
         #img = self.Histogram_Equalization(img)
         img_array = np.array(img, dtype=np.float32)
@@ -91,7 +93,7 @@ class custom_Dataset(Dataset):
 
     def __getitem__(self,index):
         img = torch.from_numpy(self.get_img(index))
-        lable = torch.from_numpy(np.array(self.data['y'][index]))
+        lable = torch.from_numpy(np.array(int(self.data['y'][index])))
 
         return img,lable
 
