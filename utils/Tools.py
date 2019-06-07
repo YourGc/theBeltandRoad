@@ -195,12 +195,12 @@ def data_sample(cfg,phase = None):
         #make splitation
         train_sample,val_sample = split_dataset_step(cfg,select_pics)
         for sample in train_sample:
-            train_data['x'].append(sample)
-            train_data['y'].append(label)
+            train_data['x'].append(os.path.join(cfg['train_path'],label,sample))
+            train_data['y'].append(int(label))
 
         for sample in val_sample:
-            val_data['x'].append(sample)
-            val_data['y'].append(label)
+            val_data['x'].append(os.path.join(cfg['train_path'],label,sample))
+            val_data['y'].append(int(label))
 
     train_data['x'] = np.array(train_data['x'])
     train_data['y'] = np.array(train_data['y'])
