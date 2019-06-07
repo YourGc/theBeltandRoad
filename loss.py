@@ -6,7 +6,7 @@ import torch.nn.functional as F
 from torch.autograd import Variable
 
 class CELoss(nn.Module):
-    def __init__(self, class_num=9, alpha=None, gamma=2, size_average=True):
+    def __init__(self, class_num=9, alpha=None, gamma=2, size_average=False):
         super(CELoss, self).__init__()
         if alpha is None:
             self.alpha = Variable(torch.ones(class_num, 1))
@@ -31,7 +31,7 @@ class CELoss(nn.Module):
 
         pos_idx = class_mask.gt(0.5)
         neg_idx = class_mask.le(0.5)
-        print(pos_idx)
+        # print(pos_idx)
         # #neg loss
         # neg_class_mask  = 1 - class_mask
 
@@ -45,18 +45,18 @@ class CELoss(nn.Module):
 
         neg_log_p = (1 - neg_probs).log()
         log_p = probs.log()
-        print('neg_log_p size= {}'.format(neg_log_p.size()))
-        print('log_p size= {}'.format(log_p.size()))
-        print(neg_probs)
+        # print('neg_log_p size= {}'.format(neg_log_p.size()))
+        # print('log_p size= {}'.format(log_p.size()))
+        # print(neg_probs)
 
         #alpha = 1
         neg_batch_loss = - (torch.pow(neg_probs, self.gamma)) * neg_log_p
         batch_loss = -alpha * (torch.pow((1 - probs), self.gamma)) * log_p
-        print('-----bacth_loss------')
-        print("pos_loss:{}".format(batch_loss.mean().item()))
-        print("neg_loss:{}".format(neg_batch_loss.mean()))
+        # print('-----bacth_loss------')
+        # print("pos_loss:{}".format(batch_loss.mean().item()))
+        # print("neg_loss:{}".format(neg_batch_loss.mean()))
 
-        loss = neg_batch_loss + batch_loss
+        loss = neg_batch_loss.sum() + batch_loss.sum()
         if self.size_average:
             loss = loss.mean()
         else:
