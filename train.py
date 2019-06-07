@@ -134,8 +134,8 @@ def train(model,optimizer,scheduler,cfg,args):
 if __name__ == '__main__':
     create_dir(cfg['checkpoint_dir'])
 
-    if not os.path.exists(cfg['val_path']):
-        split_dataset(cfg)
+    # if not os.path.exists(cfg['val_path']):
+    #     split_dataset(cfg)
 
     #img_mean_std(cfg)
     args = get_args()
