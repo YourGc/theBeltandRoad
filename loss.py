@@ -42,7 +42,7 @@ class CELoss(nn.Module):
         # neg loss
         neg_probs = P[neg_idx] #(P * neg_class_mask).sum(1).view(-1,1)
         probs = P[pos_idx]#(P * class_mask).sum(1).view(-1, 1)
-        print(probs.shape,neg_probs.shape)
+        # print(probs.shape,neg_probs.shape)
 
         eps = 1e-8
         neg_log_p = (1 - neg_probs + eps).log()
