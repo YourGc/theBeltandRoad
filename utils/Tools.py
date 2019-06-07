@@ -5,7 +5,24 @@ import os
 import shutil
 import cv2
 import numpy as np
+import pickle
+from skimage import io,transform
 random.seed(666)
+
+#根据error.txt删除样本
+def delete_error_pics(cfg):
+    with open(cfg['error_samples'], 'r') as f:
+        lines = f.readline()
+    f.close()
+    error_pics = eval(lines.strip())
+    error_path = cfg['error_path']
+    create_dir(error_path)
+    for name in error_pics:
+        label = name[7:10]
+        label_dir = os.path.join(cfg['train_path'],label)
+        if os._exists(os.path.join(label_dir,name)):
+            shutil.move(os.path.join(label_dir,name),os.path.join(error_path,name))
+        else: continue
 
 #模型权重初始化
 def weight_init(m):
@@ -24,6 +41,27 @@ def weight_init(m):
 def create_dir(dir):
     if not os.path.exists(dir):
         os.mkdir(dir)
+
+
+#分离验证集
+def split_dataset_step(cfg,select_pics):
+    #随机分出10%验证集
+    '''
+
+    :param cfg:
+    :param select_pics: select pics' name without cfg['train_path']
+    :param label:
+    :return:
+    '''
+    SPLIT = 0.1
+    train_path = cfg['train_path']
+    cache_path = cfg['cache_path']
+    create_dir(cache_path)
+
+    count = SPLIT * len(select_pics)
+    val_sample = random.sample(select_pics,count)
+    train_sample = [sample for sample in select_pics if sample not in val_sample]
+    return train_sample,val_sample
 
 #分离验证集
 def split_dataset(cfg):
@@ -103,6 +141,76 @@ def Histogram_Equalization(img):
     # merge
     result = cv2.merge((bH, gH, rH))
     return result
+
+#采样均衡，使得训练集每个样本都5000
+def data_sample(cfg,phase = None):
+    delete_error_pics(cfg)
+    TARGET_COUNT = 5000
+    methods = ['mirror-l','rotation-90','mirror-r','rotation+90']
+
+    train_data = {
+        'x':[],
+        'y':[]
+    }
+    val_data = {
+        'x': [],
+        'y': []
+    }
+    labels = os.listdir(cfg['train_path'])
+    for label in labels:
+        pics = os.path.join(os.path.join(cfg['train'],label))
+        if len(pics) >= TARGET_COUNT: #超过样本数，降采样
+            select_pics = random.sample(pics,TARGET_COUNT)
+        else: #过采样
+            dis = TARGET_COUNT - len(pics)
+            select_pics = pics
+            while dis != 0:
+                dis -= 1
+                pic_name = random.choice(select_pics)
+                method = random.choice(methods)
+                img = cv2.imread(os.path.join(cfg['train'],pic_name))
+                if method == 'mirror-l':
+                    img = cv2.flip(img,1)
+                    fix_name = str(pic_name).strip() + '_ml.jpg'
+                    cv2.imwrite(fix_name,img)
+                elif method == 'mirror-r':
+                    img = cv2.flip(img, 0)
+                    fix_name = str(pic_name).strip() + '_mr.jpg'
+                    cv2.imwrite(fix_name, img)
+                elif method == 'rotation-90':
+                    img = cv2.rotate(img,cv2.ROTATE_90_CLOCKWISE)
+                    fix_name = str(pic_name).strip() + '_r-9.jpg'
+                    cv2.imwrite(fix_name, img)
+                elif method == 'rotation+90':
+                    img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
+                    fix_name = str(pic_name).strip() + '_r+9.jpg'
+                    cv2.imwrite(fix_name, img)
+                select_pics.append(fix_name)
+        #make splitation
+        train_sample,val_sample = split_dataset_step(cfg,select_pics)
+        for sample in train_sample:
+            train_data['x'].append(sample)
+            train_data['y'].append(label)
+
+        for sample in val_sample:
+            val_data['x'].append(sample)
+            val_data['y'].append(label)
+
+    train_data['x'] = np.array(train_data['x'])
+    train_data['y'] = np.array(train_data['y'])
+    val_data['x'] = np.array(val_data['x'])
+    val_data['y'] = np.array(val_data['y'])
+
+    with open(os.path.join(cfg['cache_path'],'cache_train.pkl'),'wb') as f:
+        pickle.dump(train_data,f)
+    f.close()
+
+    with open(os.path.join(cfg['cache_path'],'cache_val.pkl'),'wb') as f:
+        pickle.dump(val_data,f)
+    f.close()
+
+    if phase == 'train': return train_data
+    elif phase == 'val' : return val_data
 
 if __name__ == '__main__':
     dir = r'F:\Chrome-Download\2019bigdata\2019bigdata\train_image\train\001'

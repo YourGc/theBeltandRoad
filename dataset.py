@@ -1,6 +1,7 @@
 # coding:utf-8
 
 from torch.utils.data.dataset import Dataset
+from utils.Tools import *
 import pickle
 import os
 import cv2
@@ -17,15 +18,9 @@ class custom_Dataset(Dataset):
         self.mean = cfg['mean']
         self.std = cfg['std']
         self.phase = phase
-        self.ERROR_PICS = self.filter(cfg['error_samples'])
         self.data= self.load_cache(cfg)
 
-    def filter(self,path):
-        with open(path,'r') as f:
-            lines = f.readline()
-        f.close()
 
-        return eval(lines.strip())
 
     def Histogram_Equalization(self,img):
         '''
@@ -49,32 +44,33 @@ class custom_Dataset(Dataset):
             f.close()
             return data
         else:
-            print('cannot find cache file,making...')
-            if not os.path.exists(cfg['cache_path']):
-                os.mkdir(cfg['cache_path'])
-            data= self.load_data(cfg)
-            with open(os.path.join(cfg['cache_path'],'cache_{}.pkl'.format(self.phase)),'wb') as f:
-                pickle.dump(data,f)
-            f.close()
+            # print('cannot find cache file,making...')
+            # if not os.path.exists(cfg['cache_path']):
+            #     os.mkdir(cfg['cache_path'])
+            # data= self.load_data(cfg)
+            # with open(os.path.join(cfg['cache_path'],'cache_{}.pkl'.format(self.phase)),'wb') as f:
+            #             #     pickle.dump(data,f)
+            #             # f.close()
+            data = data_sample(cfg,self.phase)
             return data
 
-    def load_data(self,cfg):
-        data={
-            'x':[],
-            'y':[]
-        }
-        labels = os.listdir(cfg['{}_path'.format(self.phase)])
-        for label in labels:
-            root_path = os.path.join(cfg['{}_path'.format(self.phase)],label)
-            img_names = os.listdir(root_path)
-            for img_name in img_names:
-                if img_name in self.ERROR_PICS:continue
-                data['x'].append(os.path.join(root_path,img_name))
-                data['y'].append(np.array(int(label) - 1))
-
-        data['x'] = np.array(data['x'])
-        data['y'] = np.array(data['y'])
-        return data
+    #move load data to Tool.py
+    # def load_data(self,cfg):
+    #     data={
+    #         'x':[],
+    #         'y':[]
+    #     }
+    #     labels = os.listdir(cfg['{}_path'.format(self.phase)])
+    #     for label in labels:
+    #         root_path = os.path.join(cfg['{}_path'.format(self.phase)],label)
+    #         img_names = os.listdir(root_path)
+    #         for img_name in img_names:
+    #             data['x'].append(os.path.join(root_path,img_name))
+    #             data['y'].append(np.array(int(label) - 1))
+    #
+    #     data['x'] = np.array(data['x'])
+    #     data['y'] = np.array(data['y'])
+    #     return data
 
     def preprocessing(self,img):
 

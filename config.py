@@ -9,6 +9,7 @@ cfg['input_size'] = (224,224)
 cfg['train_path'] = r'./train'
 #cfg['data_path'] = r'/content/drive/My Drive/train'
 cfg['error_samples'] = r'./error_samples.txt'
+cfg['error_path'] = r'./error_samples'
 cfg['val_path'] = r'./val'
 cfg['cache_path'] = 'cache'
 #BGR
