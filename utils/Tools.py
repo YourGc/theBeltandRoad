@@ -180,8 +180,8 @@ def data_sample(cfg,phase = None):
                 elif method == 'rotation+90':
                     img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
                     fix_name = str(pic_name).strip('.jpg') + '_r-9.jpg'
-
                 fix_name = os.path.join(cfg['train_path'],label,fix_name)
+                if not fix_name.startswith('.'): fix_name = '.'+fix_name
                 while os.path.exists(fix_name): fix_name = fix_name.strip('.jpg') + '_c.jpg'
                 cv2.imwrite(fix_name, img)
                 select_pics.append(fix_name)
