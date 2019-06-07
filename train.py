@@ -141,9 +141,9 @@ if __name__ == '__main__':
     args = get_args()
 
     model = se_resnet50(9,None)
-    optimizer = optim.Adam(
+    optimizer = optim.SGD(
                 filter(lambda p: p.requires_grad, model.parameters()),
-                lr = cfg['base_lr'], weight_decay=0.001
+                momentum=0.9,lr = cfg['base_lr'], weight_decay=0.001
             )
     scheduler = lr_scheduler.ExponentialLR(optimizer, gamma=cfg['gamma'])
     #scheduler = lr_scheduler.ReduceLROnPlateau(optimizer,mode='min',factor=0.2,patience=3,verbose=True,)
