@@ -28,7 +28,6 @@ class CELoss(nn.Module):
         class_mask = Variable(class_mask)
         ids = targets.view(-1, 1)
         class_mask.scatter_(1, ids.data, 1.)
-
         #neg loss
         neg_class_mask  = 1 - class_mask
 
@@ -36,20 +35,26 @@ class CELoss(nn.Module):
             self.alpha = self.alpha.cuda()
         alpha = self.alpha[ids.data.view(-1)]
 
+        # neg loss
+        neg_probs = (P * neg_class_mask).sum(1).view(-1,1)
         probs = (P * class_mask).sum(1).view(-1, 1)
 
+        neg_log_p = neg_probs.log()
         log_p = probs.log()
         # print('probs size= {}'.format(probs.size()))
         # print(probs)
 
+        #alpha = 1
+        neg_batch_loss = - (torch.pow((1 - neg_probs), self.gamma)) * neg_log_p
         batch_loss = -alpha * (torch.pow((1 - probs), self.gamma)) * log_p
         # print('-----bacth_loss------')
         # print(batch_loss)
 
+        loss = neg_batch_loss + batch_loss
         if self.size_average:
-            loss = batch_loss.mean()
+            loss = loss.mean()
         else:
-            loss = batch_loss.sum()
+            loss = loss.sum()
         return loss
 
 
