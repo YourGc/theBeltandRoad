@@ -45,7 +45,7 @@ def train(model,optimizer,scheduler,cfg,args):
     model.apply(weight_init)
     model.cuda()
 
-    model = torch.nn.DataParallel(model, device_ids=[0,1,2,3])
+    #model = torch.nn.DataParallel(model, device_ids=[0,1,2,3])
     #断点重训
     if args.model_path != None:
         if args.start_epoch == None:
