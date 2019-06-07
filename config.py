@@ -6,10 +6,10 @@ cfg = {}
 cfg['model_name'] = r'se_resneXt'
 #数据参数
 cfg['input_size'] = (224,224)
-cfg['train_path'] = r'./train'
+cfg['train_path'] = r'../train'
 #cfg['data_path'] = r'/content/drive/My Drive/train'
-cfg['error_samples'] = r'./error_samples.txt'
-cfg['val_path'] = r'./val'
+cfg['error_samples'] = r'../error_samples.txt'
+cfg['val_path'] = r'../val'
 cfg['cache_path'] = 'cache'
 #BGR
 cfg['mean'] = (0.62138,0.53756,0.46789)
