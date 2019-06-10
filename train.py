@@ -11,7 +11,8 @@ import tqdm
 from torch.utils.data import DataLoader
 from torch.autograd import Variable
 from tensorboardX import SummaryWriter
-from senet import se_resnet50
+from models.senet import se_resnet50
+from models.conbine import ConbinedSE50
 from dataset import custom_Dataset
 from config import cfg
 from loss import CELoss
@@ -70,15 +71,17 @@ def train(model,optimizer,scheduler,cfg,args):
     for epoch in range(args.start_epoch,cfg['epochs']):
         train_loss = 0.0
         train_acc = 0.0
-        for idx, (imgs, labels) in enumerate(trainloader):
+        for idx, (imgs_visits, labels) in enumerate(trainloader):
             #print(imgs.shape)
+            imgs,visits = imgs_visits
             optimizer.zero_grad()
             if device == 'cuda':
                 imgs = Variable(imgs.cuda())
+                visits = Variable(visits.cuda())
                 labels = Variable(labels.cuda())
             else:
-                inputs, labels = Variable(imgs), Variable(labels)
-            preds = model(imgs)
+                inputs, labels, visits = Variable(imgs), Variable(labels), Variable(visits)
+            preds = model(imgs,visits)
             loss = criterion(preds, labels)
             output = torch.argmax(preds,dim=1)
 
@@ -140,7 +143,7 @@ if __name__ == '__main__':
     #img_mean_std(cfg)
     args = get_args()
 
-    model = se_resnet50(9,None)
+    model = ConbinedSE50(9,None)
     optimizer = optim.SGD(
                 filter(lambda p: p.requires_grad, model.parameters()),
                 momentum=0.9,lr = cfg['base_lr'], weight_decay=0.001

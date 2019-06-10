@@ -46,32 +46,32 @@ class custom_Dataset(Dataset):
             return data
         else:
             print('cannot find cache file,making...')
-            # if not os.path.exists(cfg['cache_path']):
-            #     os.mkdir(cfg['cache_path'])
-            # data= self.load_data(cfg)
-            # with open(os.path.join(cfg['cache_path'],'cache_{}.pkl'.format(self.phase)),'wb') as f:
-            #             #     pickle.dump(data,f)
-            #             # f.close()
+            if not os.path.exists(cfg['cache_path']):
+                os.mkdir(cfg['cache_path'])
+            data= self.load_data(cfg)
+            with open(os.path.join(cfg['cache_path'],'cache_{}.pkl'.format(self.phase)),'wb') as f:
+                pickle.dump(data,f)
+            f.close()
             data = data_sample(cfg,self.phase)
             return data
 
     #move load data to Tool.py
-    # def load_data(self,cfg):
-    #     data={
-    #         'x':[],
-    #         'y':[]
-    #     }
-    #     labels = os.listdir(cfg['{}_path'.format(self.phase)])
-    #     for label in labels:
-    #         root_path = os.path.join(cfg['{}_path'.format(self.phase)],label)
-    #         img_names = os.listdir(root_path)
-    #         for img_name in img_names:
-    #             data['x'].append(os.path.join(root_path,img_name))
-    #             data['y'].append(np.array(int(label) - 1))
-    #
-    #     data['x'] = np.array(data['x'])
-    #     data['y'] = np.array(data['y'])
-    #     return data
+    def load_data(self,cfg):
+        data={
+            'x':[],
+            'y':[]
+        }
+        labels = os.listdir(cfg['{}_path'.format(self.phase)])
+        for label in labels:
+            root_path = os.path.join(cfg['{}_path'.format(self.phase)],label)
+            img_names = os.listdir(root_path)
+            for img_name in img_names:
+                data['x'].append(os.path.join(root_path,img_name))
+                data['y'].append(np.array(int(label) - 1))
+
+        data['x'] = np.array(data['x'])
+        data['y'] = np.array(data['y'])
+        return data
 
     def preprocessing(self,img):
 
@@ -90,11 +90,18 @@ class custom_Dataset(Dataset):
         img_array = np.transpose(img_array,(2,0,1))
         return img_array
 
+    def get_visit(self,filename):
+        visit_path = self.cfg['cache_path'] + r'/visit_npy' + filename + '.npy'
+        visit = np.load(visit_path)
+        return visit
+
     def __getitem__(self,index):
+        filename = self.data['x'][index].split('/')[-1].strip('.jpg')
+        visit = torch.from_numpy(self.get_visit(filename))
         img = torch.from_numpy(self.get_img(index))
         lable = torch.from_numpy(np.array(self.data['y'][index]))
 
-        return img,lable
+        return (img,visit),lable
 
     def __len__(self):
         assert len(self.data['x']) == len(self.data['y']) , "customDataSet Error"

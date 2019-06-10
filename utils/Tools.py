@@ -6,7 +6,6 @@ import shutil
 import cv2
 import numpy as np
 import pickle
-from skimage import io,transform
 random.seed(666)
 
 #根据error.txt删除样本

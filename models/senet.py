@@ -204,8 +204,9 @@ class SEResNeXtBottleneck(Bottleneck):
 
 
 class SENet(nn.Module):
-    def __init__(self, block, layers, groups, reduction, dropout_p=0.2,
-                 inplanes=128, input_3x3=True, downsample_kernel_size=3,
+    def __init__(self, block, layers, groups, reduction, dropout_p=None,
+                 inplanes=128, input_3x3=True, downsample_kernel_size=3,Linear = True,
+                 visit = False,
                  downsample_padding=1, num_classes=1000):
         """
         Parameters
@@ -251,10 +252,13 @@ class SENet(nn.Module):
             - For all models: 1000
         """
         super(SENet, self).__init__()
+        self.Linear = Linear
         self.inplanes = inplanes
+        self.input_channel = 3 if visit == False else 7
+        self.pool_size = 4 if visit == False else 1
         if input_3x3:
             layer0_modules = [
-                ('conv1', nn.Conv2d(3, 64, 3, stride=2, padding=1,
+                ('conv1', nn.Conv2d(self.input_channel, 64, 3, stride=2, padding=1,
                                     bias=False)),
                 ('bn1', nn.BatchNorm2d(64)),
                 ('relu1', nn.ReLU(inplace=True)),
@@ -269,13 +273,14 @@ class SENet(nn.Module):
             ]
         else:
             layer0_modules = [
-                ('conv1', nn.Conv2d(3, inplanes, kernel_size=7, stride=2,
+                ('conv1', nn.Conv2d(self.input_channel, inplanes, kernel_size=7, stride=2,
                                     padding=3, bias=False)),
                 ('bn1', nn.BatchNorm2d(inplanes)),
                 ('relu1', nn.ReLU(inplace=True)),
             ]
         # To preserve compatibility with Caffe weights `ceil_mode=True`
         # is used instead of `padding=1`.
+        print(layer0_modules[0])
         layer0_modules.append(('pool', nn.MaxPool2d(3, stride=2,
                                                     ceil_mode=True)))
         self.layer0 = nn.Sequential(OrderedDict(layer0_modules))
@@ -318,7 +323,7 @@ class SENet(nn.Module):
             downsample_kernel_size=downsample_kernel_size,
             downsample_padding=downsample_padding
         )
-        self.avg_pool = nn.AvgPool2d(7, stride=1)
+        self.avg_pool = nn.AvgPool2d(self.pool_size, stride=1) # 7
         self.dropout = nn.Dropout(dropout_p) if dropout_p is not None else None
         self.last_linear = nn.Linear(512 * block.expansion, num_classes)
 
@@ -352,10 +357,11 @@ class SENet(nn.Module):
 
     def logits(self, x):
         x = self.avg_pool(x)
-        if self.dropout is not None:
-            x = self.dropout(x)
         x = x.view(x.size(0), -1)
-        x = self.last_linear(x)
+        if self.Linear:
+            if self.dropout is not None:
+                x = self.dropout(x)
+            x = self.last_linear(x)
         return x
 
     def forward(self, x):
@@ -393,6 +399,15 @@ def se_resnet50(num_classes=1000, pretrained='imagenet'):
     if pretrained is not None:
         settings = pretrained_settings['se_resnet50'][pretrained]
         initialize_pretrained_model(model, num_classes, settings)
+    return model
+
+def se_resnet50_no_Linear(isVisit = False):
+    model = SENet(SEResNetBottleneck, [3, 4, 6, 3], groups=1, reduction=16,
+                  dropout_p=None, inplanes=64, input_3x3=True,visit=isVisit,
+                  downsample_kernel_size=1, downsample_padding=0,Linear=False)
+    # if pretrained is not None:
+    #     settings = pretrained_settings['se_resnet50'][pretrained]
+    #     initialize_pretrained_model(model, num_classes, settings)
     return model
 
 
